@@ -1,0 +1,13 @@
+
+CREATE TABLE `user` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(100) NOT NULL,
+  `email` VARCHAR(255) NOT NULL UNIQUE,
+  `password` VARCHAR(255) NOT NULL,
+  `short_bio` VARCHAR(160),
+  `avatar` VARCHAR(2083),
+  `isActive` BOOLEAN DEFAULT TRUE,
+  `isBlacklisted` BOOLEAN DEFAULT FALSE,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) 
+COLLATE='utf8mb4_0900_ai_ci';

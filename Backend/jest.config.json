@@ -1,0 +1,15 @@
+{
+  "testEnvironment": "node",
+  "transform": {
+    "\\.ts$": ["ts-jest"]
+  },
+  "collectCoverageFrom": ["!**node_modules**", "src/api/**/*.ts"],
+  "coverageThreshold": {
+    "global": {
+      "branches": 80,
+      "functions": 90,
+      "lines": 90,
+      "statements": 90
+    }
+  }
+}

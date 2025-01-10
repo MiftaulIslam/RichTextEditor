@@ -74,6 +74,7 @@ export function Sidebar({ content }: SidebarProps) {
 
   return (
     <div className={`bg-white border-r transition-all duration-300 ${isExpanded ? 'w-64' : 'w-16'}`}>
+    {/* // <div className={` border-r transition-all duration-300 ${isExpanded ? 'w-64' : 'w-16'}`}> */}
       <div className="p-4 flex justify-between items-center border-b">
         <h2 className={`font-semibold ${isExpanded ? '' : 'hidden'}`}>Navigation</h2>
         <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)}>
