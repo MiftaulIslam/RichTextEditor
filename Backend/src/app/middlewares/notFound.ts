@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { NextFunction, Request, Response } from 'express';
+import {  Request, Response } from 'express';
 import { NOT_FOUND } from '../utils/Http-Status';
 
 // Adding return type explicitly

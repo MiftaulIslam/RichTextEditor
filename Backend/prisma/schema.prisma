@@ -7,14 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
+model User {
   id            Int       @id @default(autoincrement())
-  name          String    @default("0") @db.VarChar(120)
+  name          String    @db.VarChar(100)
   email         String    @unique(map: "email") @db.VarChar(255)
   password      String    @db.VarChar(255)
   short_bio     String?   @db.VarChar(160)
   avatar        String?   @db.VarChar(2083)
-  isActive      Boolean?  @default(false)
+  isActive      Boolean?  @default(true)
   isBlacklisted Boolean?  @default(false)
   created_at    DateTime? @default(now()) @db.Timestamp(0)
 }

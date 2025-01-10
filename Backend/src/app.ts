@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
+import cookieParser from 'cookie-parser';
 import express, { Application, Request, Response, NextFunction } from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -10,6 +10,8 @@ import routes from "./app/routes/routes";
 const app: Application = express();
 
 /* app default middlewares */
+app.use(cookieParser());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
