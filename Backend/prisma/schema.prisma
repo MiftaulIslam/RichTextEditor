@@ -11,10 +11,10 @@ model User {
   id            Int       @id @default(autoincrement())
   name          String    @db.VarChar(100)
   email         String    @unique(map: "email") @db.VarChar(255)
-  password      String    @db.VarChar(255)
+  password      String    @db.VarChar(2083)
   short_bio     String?   @db.VarChar(160)
   avatar        String?   @db.VarChar(2083)
-  isActive      Boolean?  @default(true)
-  isBlacklisted Boolean?  @default(false)
+  isActive      Int?      @default(0) @db.TinyInt
+  isBlacklisted Int?      @default(0) @db.TinyInt
   created_at    DateTime? @default(now()) @db.Timestamp(0)
 }

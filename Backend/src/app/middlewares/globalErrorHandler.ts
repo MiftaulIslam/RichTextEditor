@@ -1,7 +1,7 @@
 import { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import ErrorHandler from '../utils/ErrorHandler'; 
-import config from '../config/config';
+import {node_env} from '../config/config';
 
 // Handle Zod errors
 const handleZodError = (err: ZodError) => {
@@ -112,7 +112,7 @@ const globalErrorHandler: ErrorRequestHandler = (
     success: false,
     message,
     errorSources,
-    stack: config.node_env === 'development' ? err.stack : undefined,
+    stack: node_env === 'development' ? err.stack : undefined,
   });
   return next();
 };

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { IRepository } from "../IRepository";
 import ErrorHandler from "../../utils/ErrorHandler";
 import { NOT_FOUND } from "../../utils/Http-Status";
@@ -15,7 +15,7 @@ export class Repository<T> implements IRepository<T> {
     this.model = (prisma as any)[modelName];
   }
 
-  async findMany(options?: any): Promise<T[]> {
+  async findMany(options?: Prisma.UserFindManyArgs): Promise<T[]> {
     const entities = await this.model.findMany(options);
     if(entities.length === 0){
       return [];
@@ -23,18 +23,9 @@ export class Repository<T> implements IRepository<T> {
     return entities;
   }
 
-  async findUnique(options: any): Promise<T | null> {
-    const entity = await this.model.findUnique(options);
-    if (!entity) {
-      throw new ErrorHandler("Entity not found", NOT_FOUND);
-    }
-    return await this.model.findUnique(options);
-  }
+  async findUnique(options: any): Promise<T | null> { return await this.model.findUnique(options);}
 
   async findById(id: number): Promise<T | null> {
-    if (!id || typeof id !== "number" || id <= 0) {
-      throw new Error("Invalid ID: ID must be a positive number.");
-    }
     const entity = await this.model.findUnique({
         where: { id },
       });
@@ -42,7 +33,7 @@ export class Repository<T> implements IRepository<T> {
     return entity;
   }
 
-  async create(data: T): Promise<T> {
+  async create(data:any): Promise<T> {
     return await this.model.create({ data });
   }
 

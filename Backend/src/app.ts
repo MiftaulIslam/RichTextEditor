@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import cookieParser from 'cookie-parser';
-import express, { Application, Request, Response, NextFunction } from "express";
+import express, { Application, Request, Response } from "express";
 import helmet from "helmet";
 import cors from "cors";
 import { globalErrorHandler, notFound } from "./app/middlewares"; // Importing both middlewares

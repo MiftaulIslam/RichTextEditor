@@ -1,9 +1,8 @@
-import config from "../config/config";
+import { database_host, database_user, database_password, database_name }  from "../config/config";
 
 // Connect using mysql2
 const mysql = require('mysql2');
 
-const { database_host, database_user, database_password, database_name } = config;
 export const dbcontext =()=>{ mysql.createConnection({
   host: database_host,
   user: database_user,

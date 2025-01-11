@@ -1,12 +1,11 @@
 import app from "./app";
-import AppConfig from "./app/config/config";
+import {port} from "./app/config/config";
 
 import {Server} from 'http'
 import { dbcontext } from "./app/context/context";
 
 
 /* Server Config */
-const { port } = AppConfig;
 const server:Server = app.listen(port||4000, () => {
   console.log(`App Running on port ${port}`);
 });
