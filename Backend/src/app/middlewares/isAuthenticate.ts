@@ -1,32 +1,40 @@
 import { NextFunction, Request, Response } from "express";
 import catchAsync from "../utils/CatchAsyncError";
+import { UNAUTHORIZED } from "../utils/Http-Status";
 
-const ErrorHandler = require("../utiles/ErrorHandler");
-const { jwtVerify } = require("../utiles/jwtVerify");
+import ErrorHandler from "../utils/ErrorHandler";
+import { jwtVerify } from "../utils/jwtVerify";
 
 interface AuthenticatedRequest extends Request {
   id?: string;
   role?: string;
 }
 
-exports.isAuthenticated = catchAsync(
+export interface AuthenticateRequest extends Request {
+  id?: string;
+}
+
+export const isAuthenticate = catchAsync(
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const token = req.cookies ? req.cookies["authenticate-token"] : null;
 
     if (!token) {
-      return next(new ErrorHandler("Login to access", 401));
+      return next(new ErrorHandler("Login to access", UNAUTHORIZED));
     }
 
     try {
       const decoded = await jwtVerify(token);
       if (!decoded) {
-        return next(new ErrorHandler("Failed to load user", 401));
+        return next(new ErrorHandler("Failed to load user", UNAUTHORIZED));
       }
-      req.id = decoded.id;
-      req.role = decoded.role;
+      if (typeof decoded !== 'string' && 'id' in decoded) {
+        req.id = decoded.id;
+      } else {
+        return next(new ErrorHandler("Invalid token payload", UNAUTHORIZED));
+      }
       next();
     } catch (error) {
-      return next(new ErrorHandler("Token verification failed", 401));
+      return next(new ErrorHandler("Token verification failed", UNAUTHORIZED));
     }
   },
 );

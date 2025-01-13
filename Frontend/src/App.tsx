@@ -1,12 +1,12 @@
 
-import './App.css'
-import TextEditor from './Layouts/TextEditor'
+import { RouterProvider } from 'react-router-dom'
+import router from './routes/routes'
 
 function App() {
 
   return (
     <>
-    <TextEditor />
+    <RouterProvider router={router}/>
     </>
   )
 }
