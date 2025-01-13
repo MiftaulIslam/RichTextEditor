@@ -9,6 +9,7 @@ export const base_url = node_env != 'production' ? process.env.BASE_URL: process
 export const port = process.env.PORT;
 export const salt = process.env.SALT;
 export const jwt_secret_key = process.env.JWT_SECRET;
+export const imgbb_api_key = process.env.IMG_BB_API_KEY;
 export const database_host = process.env.DATABASE_HOST;
 export const database_user = process.env.DATABASE_USER;
 export const database_password = process.env.DATABASE_PASSWORD;

@@ -1,5 +1,5 @@
 import About from "@/Components/profile/About";
-import Home from "@/Components/profile/home";
+import Home from "@/Components/profile/Home";
 import Lists from "@/Components/profile/Lists";
 import HomeLayout from "@/Layouts/HomeLayout";
 import ProfileLayout from "@/Layouts/ProfileLayout";
@@ -43,7 +43,7 @@ const router = createBrowserRouter([
     ],
   },
 
-  
+
   {
     path: "/login",
     element: <Login />,

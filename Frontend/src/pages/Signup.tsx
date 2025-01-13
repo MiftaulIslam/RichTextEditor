@@ -2,8 +2,9 @@
 import BounceLoader from '@/Components/BounchLoader';
 import Logo from '@/Components/Logo';
 import { useHttp } from '@/hooks/useHttp';
+import { ChangeEvent, useRef, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 type FormValues = {
   name: string;
@@ -13,41 +14,147 @@ type FormValues = {
 };
 
 export default function Signup() {
-  const {  loading,error, sendRequest } = useHttp();
+  const navigate = useNavigate();
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [image, setImage] = useState<File | null>(null)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { data,loading , sendRequest } = useHttp();
   const {
     register,
     handleSubmit,
-    
+
     formState: { errors },
   } = useForm<FormValues>();
 
+
+  // 📝 Submit Form with Image
   const onSubmit: SubmitHandler<FormValues> = async (formData) => {
-    const { password, confirmPassword } = formData;
+    const { name, email, password, confirmPassword } = formData;
+
     if (password !== confirmPassword) {
       alert('Passwords do not match.');
-    } else {
-      await sendRequest(`user/signup`,"POST", formData)
-      if(!error){
-        console.log("Signup successfully")
-      }
+      return;
+    }
+    if(!image) {
+      alert('Please upload an image.');
+      return;
+    }
+    // 🔧 Create FormData object
+    const formDataObj = new FormData();
+    formDataObj.append('name', name);
+    formDataObj.append('email', email);
+    formDataObj.append('password', password);
+
+    // ✅ Include image file if uploaded
+   
+      formDataObj.append('avatar', image);
+    
+
+    // 🔥 Send FormData via your HTTP hook
+    await sendRequest(`user/signup`, 'POST', formDataObj);
+
+    if (data && !loading) {
+      navigate('/login');
+      console.log(data);
     }
   };
 
-  if(loading) return <BounceLoader/>
+  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
 
-  
+    // ✅ Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg'];
+    if (file && !allowedTypes.includes(file.type)) {
+      alert('Only PNG, JPG formats are allowed.');
+      return;
+    }
+
+    // ✅ Validate file size (1MB limit)
+    const maxSizeInMB = 1;
+    if (file && file.size > maxSizeInMB * 1024 * 1024) {
+      alert(`File size must be less than ${maxSizeInMB}MB.`);
+      return;
+    }
+
+    // ✅ If valid, generate preview and set image
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setImage(file);
+    }
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click()
+  }
+  if (loading) return <BounceLoader />
+
+
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12  px-6">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <Logo/>
+        <Logo />
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Create your account
         </h2>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-6">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <div className='flex flex-col gap-4'>
+              <div className="flex justify-center">
+                <div
+                  className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer overflow-hidden"
+                  onClick={handleImageClick}
+                >
+                  {imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt="Profile"
+                      width={128}
+                      height={128}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <svg
+                      className="h-12 w-12 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
+
+              </div>
+
+              <p className="text-sm text-gray-500 mt-2">
+                * Only <span className="font-medium text-gray-700">PNG, JPG, WEBP</span> formats are allowed.
+                <br />
+                * Maximum file size: <span className="font-medium text-gray-700">1MB</span>.
+                <br />
+                * Files exceeding the limit or unsupported formats will be rejected.
+              </p>
+            </div>
+
             {/* Name Field */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -126,7 +233,7 @@ export default function Signup() {
                 )}
               </div>
             </div>
-                
+
             {/* Submit Button */}
             <div>
               <button
