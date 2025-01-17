@@ -1,17 +1,21 @@
 import BounceLoader from '@/Components/BounchLoader';
 import Logo from '@/Components/Logo';
 import { useHttp } from '@/hooks/useHttp';
+import { ILoginResponse } from '@/Interfaces/AuthInterfaces';
+import useTokenStore from '@/store/TokenStore';
+import { useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Define the form inputs type
 interface LoginFormInputs {
   email: string;
   password: string;
 }
-
 export default function Login() {
-  const { loading, error, sendRequest} = useHttp();
+  const navigate = useNavigate();
+  const { setToken } = useTokenStore();
+  const { data, error, statusCode, loading, sendRequest } = useHttp<ILoginResponse>();
   // Initialize useForm hook
   const {
     register,
@@ -20,12 +24,25 @@ export default function Login() {
   } = useForm<LoginFormInputs>();
 
   // Handle form submission
-  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
-    console.log(data);
-    await sendRequest(`user/login`,"POST", data);
-    if(!error) {console.log("Logged in successfully"); }
+  const onSubmit: SubmitHandler<LoginFormInputs> = async (formData) => {
+
+    await sendRequest(`user/login`, "POST", formData);
+
   };
-if(loading) return <BounceLoader/>
+
+  useEffect(() => {
+    if (statusCode === 200 && !error && data) {
+      setToken(data?.token)
+      console.log(data.token)
+      navigate('/')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, loading, error, statusCode])
+
+  if (loading) return <BounceLoader />
+
+
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">

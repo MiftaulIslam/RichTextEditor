@@ -71,7 +71,7 @@ const [fontSize, setFontSize] = useState(12);
         handlefontsize={setFontSize}
         />
       
-        <Editor  handleContent ={setContent} content={content} fontsize={fontSize}/>
+        <Editor  handleContent ={setContent}/>
         {/* <div dangerouslySetInnerHTML={{ __html: content }}/> */}
  
       </main>

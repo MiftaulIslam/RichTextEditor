@@ -4,6 +4,7 @@ import catchAsync from "../../utils/CatchAsyncError";
 import sendResponse, { sendResponseWithToken } from "../../utils/SendResponse";
 import {
   INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
   OK,
   UNAUTHORIZED,
 } from "../../utils/Http-Status";
@@ -14,12 +15,64 @@ import bcrypt from "bcrypt";
 import { mailSender } from "../../utils/mailSender";
 import { jwtVerify } from "../../utils/jwtVerify";
 import { RequestHandler, Request } from "express";
-import { AuthenticateRequest } from "../../middlewares/isAuthenticate";
 import axios from "axios";
 import FormData from "form-data";
+import { AuthenticatedRequest } from "../../middlewares/isAuthenticate";
 const prisma = new PrismaClient();
 //User repository
 const _userRepository = new Repository<User>("User");
+const getUserByDomain = catchAsync(async (req, res, next)=>{
+ 
+  const {domain} = req.params;
+  const user = await _userRepository.findUnique({where:{domain}});
+  
+  console.log(user)
+  if(!user) return next(new ErrorHandler("User not found", NOT_FOUND));
+  sendResponse(res,{
+    success:true,
+    message:"User found",
+    statusCode:OK,
+    data:user
+  })
+
+  // try {
+    
+  //   const {domain} = req.params;
+  //   const user = await _userRepository.findUnique({where:{domain:domain}});
+  //   if(!user) return next(new ErrorHandler("User not found", NOT_FOUND));
+  //   sendResponse(res,{
+  //     success:true,
+  //     message:"User found",
+  //     statusCode:OK,
+  //     data:user
+  //   })
+  //   } catch (error) {
+  //     return sendResponse(res, {
+  //       success:false,
+  //       message:"Internal Server Error",
+  //       statusCode:INTERNAL_SERVER_ERROR,
+  //       data:null
+  //     })
+  //   }
+})
+const getAuthenticateUserInfo = catchAsync(async (req:AuthenticatedRequest, res, next)=>{
+  try {
+    
+    const user = await _userRepository.findUnique({ where: { id: req.id } });
+    if (!user) {
+      return next(new ErrorHandler("User not found", UNAUTHORIZED));
+    }
+    sendResponse(res, {
+      success: true,
+      message: "User retrieved successfully",
+      statusCode: OK,
+      data: user,
+    });
+  } catch (error) {
+    return next(
+      new ErrorHandler("Internal Server Error", INTERNAL_SERVER_ERROR),
+    );
+}})
 
 const getUsers = catchAsync(async (req, res, next) => {
   try {
@@ -37,8 +90,100 @@ const getUsers = catchAsync(async (req, res, next) => {
   }
 });
 
-//Signup
 
+const updateAvatar:RequestHandler = catchAsync(async(req:AuthenticatedRequest, res, next)=>{
+
+    const formData = new FormData();
+    if (!req.file) {
+      return next(new ErrorHandler("No file uploaded", UNAUTHORIZED));
+    }
+    formData.append("image", req.file.buffer.toString("base64"));
+    const imgbbResponse = await axios.post(
+      `https://api.imgbb.com/1/upload?key=${imgbb_api_key}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+
+  const user = await _userRepository.update(
+    { where: { id: req.id } },
+    {
+      avatar:imgbbResponse.data.data.url, 
+    }
+  );
+
+
+  return sendResponse(res, {
+    success: true,
+    message:
+      "Avatar updated successfully",
+    statusCode: OK,
+    data: user,
+  });
+
+})
+
+
+const updateEmail:RequestHandler = catchAsync(async(req:AuthenticatedRequest, res, next)=>{
+const {email} = req.body;
+const existingEmail = await _userRepository.findUnique({where:{email}})
+if(existingEmail) return next(new ErrorHandler("Email already exists", UNAUTHORIZED));
+if (!jwt_secret_key) {
+  return next(new ErrorHandler("Internal Server Error", INTERNAL_SERVER_ERROR));
+}
+const activationToken = jwt.sign({ email }, jwt_secret_key, { expiresIn: "10m" });
+
+const activationUrl = `${base_url}/api/v1/user/activate/${activationToken}`;
+
+await mailSender({
+  email: email,
+  subject: "Activate your account",
+  message: `Click the link to activate your account: ${activationUrl}`,
+});
+
+  // Update the user's email and set isActivate to 0
+  const user = await _userRepository.update(
+    { where: { id: req.id } },
+    {
+      email:email, // Update the email
+      isActive: 0, // Deactivate the account until the email is confirmed
+    }
+  );
+
+return sendResponse(res, {
+  success: true,
+  message:
+    "An email has been sent to your email address. Please click on the link to activate your account.",
+  statusCode: OK,
+  data: user,
+});
+
+
+})
+
+
+const updateInfo:RequestHandler = catchAsync(async (req:AuthenticatedRequest, res, next)=>{
+const body = req.body;
+const user = await _userRepository.update(
+  { where: { id: req.id } },
+  body
+);
+
+return sendResponse(res, {
+  success: true,
+  message:
+    "User updated successfully",
+  statusCode: OK,
+  data: user,
+});
+
+
+})
+
+//Signup
 const signUp: RequestHandler = catchAsync(async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -66,10 +211,12 @@ const signUp: RequestHandler = catchAsync(async (req, res, next) => {
 
       avatar = imgbbResponse.data.data.url;
     }
+
     const user = await _userRepository.create({
       name,
       email,
       password: hashedPassword,
+      domain:`@${email.split("@")[0]}`,
       avatar: avatar,
     });
 
@@ -176,7 +323,7 @@ const activateAccount: RequestHandler = catchAsync(async (req, res, next) => {
 });
 
 const requestForActivation: RequestHandler = catchAsync(
-  async (req: AuthenticateRequest, res, next) => {
+  async (req: AuthenticatedRequest, res, next) => {
     if (!req.id) {
       return next(new ErrorHandler("Unauthorized access", UNAUTHORIZED));
     }
@@ -208,7 +355,7 @@ const requestForActivation: RequestHandler = catchAsync(
   },
 );
 
-const update = catchAsync(async (req: AuthenticateRequest, res, next) => {
+const update = catchAsync(async (req: AuthenticatedRequest, res, next) => {
   const { id } = req;
   const { name, shortbio } = req.body;
   const user = await _userRepository.update(
@@ -225,9 +372,13 @@ const update = catchAsync(async (req: AuthenticateRequest, res, next) => {
 
 export const UserControllers = {
   getUsers,
+  getAuthenticateUserInfo,
+  getUserByDomain,
   signUp,
   login,
   activateAccount,
   requestForActivation,
-  update,
+  update,updateEmail,
+  updateAvatar,
+  updateInfo
 };

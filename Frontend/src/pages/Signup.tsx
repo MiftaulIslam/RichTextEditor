@@ -2,7 +2,7 @@
 import BounceLoader from '@/Components/BounchLoader';
 import Logo from '@/Components/Logo';
 import { useHttp } from '@/hooks/useHttp';
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -19,7 +19,9 @@ export default function Signup() {
   const [image, setImage] = useState<File | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { data,loading , sendRequest } = useHttp();
+  const { data, loading, error, statusCode, sendRequest } = useHttp();
+
+
   const {
     register,
     handleSubmit,
@@ -36,7 +38,7 @@ export default function Signup() {
       alert('Passwords do not match.');
       return;
     }
-    if(!image) {
+    if (!image) {
       alert('Please upload an image.');
       return;
     }
@@ -47,19 +49,13 @@ export default function Signup() {
     formDataObj.append('password', password);
 
     // ✅ Include image file if uploaded
-   
-      formDataObj.append('avatar', image);
-    
+
+    formDataObj.append('avatar', image);
+
 
     // 🔥 Send FormData via your HTTP hook
     await sendRequest(`user/signup`, 'POST', formDataObj);
-
-    if (data && !loading) {
-      navigate('/login');
-      console.log(data);
-    }
   };
-
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
@@ -91,6 +87,16 @@ export default function Signup() {
   const handleImageClick = () => {
     fileInputRef.current?.click()
   }
+
+
+  useEffect(() => {
+    if(statusCode === 201 || statusCode === 200 && !error) {
+      navigate('/login')
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, loading, error, statusCode])
+  
+
   if (loading) return <BounceLoader />
 
 

@@ -16,5 +16,8 @@ model User {
   avatar        String?   @db.VarChar(2083)
   isActive      Int?      @default(0) @db.TinyInt
   isBlacklisted Int?      @default(0) @db.TinyInt
-  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  domain        String    @unique(map: "domain") @db.VarChar(255)
+  about         String?   @db.VarChar(250)
+  created_at    DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  isPremium     Int?      @default(0) @db.TinyInt
 }

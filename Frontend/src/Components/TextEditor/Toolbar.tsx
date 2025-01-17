@@ -37,7 +37,6 @@ const Toolbar: FC<{
   isboldactive,
   isunderlineactive,
   isitalicactive,
-  fontsize,
   handlebold,
   handleunderline,
   handleitalic,
@@ -49,7 +48,6 @@ const Toolbar: FC<{
   handleheading1,
   handleheading2,
   handleheading3,
-  handlefontsize,
 }) => {
 
   const [font, setFont] = useState("Arial");

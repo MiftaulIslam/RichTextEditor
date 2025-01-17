@@ -1,8 +1,12 @@
 import { useRef } from "react";
 
-const Editor = ({ handleContent , content, fontsize}) => {
+interface EditorProps {
+  handleContent: (content: string) => void;
+}
 
-  const editorRef = useRef(null);
+const Editor: React.FC<EditorProps> = ({ handleContent }) => {
+
+  const editorRef = useRef<HTMLDivElement>(null);
 
   const handleInput = () => {
     if (editorRef.current) {
@@ -11,7 +15,7 @@ const Editor = ({ handleContent , content, fontsize}) => {
     }
   };
   
-  const handleKeyUp = (e) => {
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {

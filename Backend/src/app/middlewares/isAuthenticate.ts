@@ -1,22 +1,17 @@
 import { NextFunction, Request, Response } from "express";
 import catchAsync from "../utils/CatchAsyncError";
 import { UNAUTHORIZED } from "../utils/Http-Status";
-
 import ErrorHandler from "../utils/ErrorHandler";
 import { jwtVerify } from "../utils/jwtVerify";
 
-interface AuthenticatedRequest extends Request {
-  id?: string;
-  role?: string;
-}
-
-export interface AuthenticateRequest extends Request {
+export interface AuthenticatedRequest extends Request {
   id?: string;
 }
 
 export const isAuthenticate = catchAsync(
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    const token = req.cookies ? req.cookies["authenticate-token"] : null;
+    // Check for token in the Authorization header (Bearer token)
+    const token = req.headers.authorization?.split(" ")[1] || req.cookies?.["authenticate-token"];
 
     if (!token) {
       return next(new ErrorHandler("Login to access", UNAUTHORIZED));
@@ -36,5 +31,5 @@ export const isAuthenticate = catchAsync(
     } catch (error) {
       return next(new ErrorHandler("Token verification failed", UNAUTHORIZED));
     }
-  },
+  }
 );

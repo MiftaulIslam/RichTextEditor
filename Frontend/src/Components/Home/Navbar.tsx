@@ -1,11 +1,20 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, Bell, Edit, ChevronDown, X } from 'lucide-react'
+import { Search, Bell, Edit, ChevronDown, X, User } from 'lucide-react'
 import { Link } from "react-router-dom"
 import Logo from "../Logo"
+import { useQuery } from "@tanstack/react-query"
+import BounceLoader from "../BounchLoader"
+import { IUser } from "@/Interfaces/AuthInterfaces"
+import Alert from "@/widgets/Icons/Alert"
 
 export default function Navbar() {
+
+  const { data: userInfo, isLoading } = useQuery<{ data: IUser }>({
+    queryKey: ['user'],
+    enabled: false,
+  });
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -21,7 +30,7 @@ export default function Navbar() {
   ]
 
   const dropdownItems = [
-    { label: "Profile", href: "/profile" },
+    { label: "Profile", href: `/profile/${userInfo?.data.domain}` },
     { label: "Library", href: "/library" },
     { label: "Stories", href: "/stories" },
     { label: "Stats", href: "/stats" },
@@ -39,7 +48,7 @@ export default function Navbar() {
     { type: "divider" },
     { label: "Sign out", href: "/signout", action: true },
   ]
-
+  if (isLoading) return <BounceLoader />
   return (
     <header className="border-b border-gray-200 relative">
       <div className="max-w-[1600px] mx-auto">
@@ -47,9 +56,9 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center">
-            <Logo/>
+              <Logo />
             </Link>
-            
+
             {/* Desktop Search */}
             <div className="hidden md:flex items-center bg-gray-50 rounded-full px-3 py-1">
               <Search className="w-5 h-5 text-gray-400" />
@@ -66,13 +75,21 @@ export default function Navbar() {
           {/* Actions */}
           <div className="flex items-center gap-6">
             {/* Mobile Search Icon */}
-            <button 
+            <button
               className="md:hidden"
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="w-5 h-5 text-gray-500" />
             </button>
+            {/* Alert */}
+            {
+              (!userInfo?.data.isActive && userInfo) && (
 
+                <div>
+                  <Alert />
+                </div>
+              )
+            }
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -81,7 +98,7 @@ export default function Navbar() {
               <Edit className="w-5 h-5" />
               <Link to={"editor"}>Write</Link>
             </motion.button>
-            
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -91,15 +108,47 @@ export default function Navbar() {
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full" />
             </motion.button>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <img src="https://simgbb.com/avatar/k2XfKcPYZJfb.jpg" className="w-8 h-8 rounded-full object-fill bg-gray-200" />
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-            </motion.button>
+            <div>
+              {!userInfo ? (
+                <Link to={"/login"}>
+                  <User size={30} className="text-gray-500" />
+                </Link>
+              ) :
+
+                (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  >
+                    {
+                      userInfo ? (
+                        <img src={userInfo?.data?.avatar ?? ""} className="w-8 h-8 rounded-full object-fill bg-gray-200" />
+
+                      ) : (
+                        <svg
+                          width={24}
+                          hanging={24}
+                          className="text-gray-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
+                        </svg>
+                      )
+                    }
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  </motion.button>
+                )}
+            </div>
+
           </div>
         </div>
 
@@ -110,9 +159,8 @@ export default function Navbar() {
               key={item}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`px-3 py-3 text-sm whitespace-nowrap ${
-                index === 0 ? "text-black" : "text-gray-500"
-              } hover:text-black`}
+              className={`px-3 py-3 text-sm whitespace-nowrap ${index === 0 ? "text-black" : "text-gray-500"
+                } hover:text-black`}
             >
               {item}
             </motion.button>
@@ -163,10 +211,9 @@ export default function Navbar() {
                   <Link
                     key={index}
                     to={item.href as string}
-                    className={`block px-4 py-2 text-sm ${
-                      item.highlight ? 'text-green-600 font-semibold' :
-                      item.action ? 'text-gray-700' : 'text-gray-600'
-                    } hover:bg-gray-50`}
+                    className={`block px-4 py-2 text-sm ${item.highlight ? 'text-green-600 font-semibold' :
+                        item.action ? 'text-gray-700' : 'text-gray-600'
+                      } hover:bg-gray-50`}
                   >
                     {item.label}
                   </Link>

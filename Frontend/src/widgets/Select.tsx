@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import { ChevronDown, Check } from 'lucide-react';
 const Select = ({
   value,
-  onChange,
   placeholder,
   children,
 }: {
