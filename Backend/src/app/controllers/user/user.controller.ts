@@ -18,6 +18,8 @@ import { RequestHandler, Request } from "express";
 import axios from "axios";
 import FormData from "form-data";
 import { AuthenticatedRequest } from "../../middlewares/isAuthenticate";
+import { v4 as uuidv4 } from 'uuid';
+
 const prisma = new PrismaClient();
 //User repository
 const _userRepository = new Repository<User>("User");
@@ -35,25 +37,6 @@ const getUserByDomain = catchAsync(async (req, res, next)=>{
     data:user
   })
 
-  // try {
-    
-  //   const {domain} = req.params;
-  //   const user = await _userRepository.findUnique({where:{domain:domain}});
-  //   if(!user) return next(new ErrorHandler("User not found", NOT_FOUND));
-  //   sendResponse(res,{
-  //     success:true,
-  //     message:"User found",
-  //     statusCode:OK,
-  //     data:user
-  //   })
-  //   } catch (error) {
-  //     return sendResponse(res, {
-  //       success:false,
-  //       message:"Internal Server Error",
-  //       statusCode:INTERNAL_SERVER_ERROR,
-  //       data:null
-  //     })
-  //   }
 })
 const getAuthenticateUserInfo = catchAsync(async (req:AuthenticatedRequest, res, next)=>{
   try {
@@ -213,6 +196,7 @@ const signUp: RequestHandler = catchAsync(async (req, res, next) => {
     }
 
     const user = await _userRepository.create({
+      id:uuidv4(),
       name,
       email,
       password: hashedPassword,

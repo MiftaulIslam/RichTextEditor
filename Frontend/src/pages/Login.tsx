@@ -13,6 +13,8 @@ interface LoginFormInputs {
   password: string;
 }
 export default function Login() {
+  const token = useTokenStore((state) => state.token);
+
   const navigate = useNavigate();
   const { setToken } = useTokenStore();
   const { data, error, statusCode, loading, sendRequest } = useHttp<ILoginResponse>();
@@ -31,13 +33,13 @@ export default function Login() {
   };
 
   useEffect(() => {
+    if (token) { navigate('/') }
     if (statusCode === 200 && !error && data) {
       setToken(data?.token)
-      console.log(data.token)
       navigate('/')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, loading, error, statusCode])
+  }, [data, loading, error, statusCode, token])
 
   if (loading) return <BounceLoader />
 

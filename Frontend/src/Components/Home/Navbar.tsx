@@ -18,6 +18,7 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isHover, setIsHover] = useState(false)
 
   const navItems = [
     "For you",
@@ -110,9 +111,29 @@ export default function Navbar() {
 
             <div>
               {!userInfo ? (
-                <Link to={"/login"}>
-                  <User size={30} className="text-gray-500" />
-                </Link>
+                <div className="relative h-9"
+                  onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}
+                >
+                  <motion.div >
+                    <User size={30} className="text-gray-500 hover:text-gray-600" />
+                  </motion.div>
+
+
+                  <AnimatePresence>
+                    {isHover && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute -left-20 text-center w-[200px] mt-2 px-4 py-2 bg-white text-gray-800 text-sm max-w-[300px] rounded-lg shadow-lg"
+                      >
+                        <p className="text-center text-gray-600 text-sm">You haven't logged in yet</p>
+                        <Link to={"/login"} className="text-center text-xs mt-1 font-semibold underline cursor-pointer text-gray-500">Login</Link>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               ) :
 
                 (
@@ -125,23 +146,8 @@ export default function Navbar() {
                     {
                       userInfo ? (
                         <img src={userInfo?.data?.avatar ?? ""} className="w-8 h-8 rounded-full object-fill bg-gray-200" />
-
                       ) : (
-                        <svg
-                          width={24}
-                          hanging={24}
-                          className="text-gray-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                          />
-                        </svg>
+                        <User />
                       )
                     }
                     <ChevronDown className="w-4 h-4 text-gray-500" />
@@ -212,7 +218,7 @@ export default function Navbar() {
                     key={index}
                     to={item.href as string}
                     className={`block px-4 py-2 text-sm ${item.highlight ? 'text-green-600 font-semibold' :
-                        item.action ? 'text-gray-700' : 'text-gray-600'
+                      item.action ? 'text-gray-700' : 'text-gray-600'
                       } hover:bg-gray-50`}
                   >
                     {item.label}

@@ -12,22 +12,24 @@ function App() {
   const { fetchRequest } = useFetchQuery<IUserInfo>();
 
   const fetchUser = async () => {
-    const headers = { Authorization: `Bearer ${token}` };
-    return await fetchRequest("user/getAuthenticateUser", "GET", null, { headers });
+    if (token) {
+      const headers = { Authorization: `Bearer ${token}` };
+      return await fetchRequest("user/getAuthenticateUser", "GET", null, { headers });
+    }
   };
 
-  const {  isLoading, isError } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: fetchUser,
-    enabled: !!token, 
-    refetchOnWindowFocus: false,
+    enabled: !!token,
+    refetchOnWindowFocus: true,
   });
+
   if (isLoading) return <BounceLoader />;
-  if (isError) return <div>Error fetching user data.</div>;
 
   return (
     <>
-    <RouterProvider router={router}/>
+      <RouterProvider router={router} />
     </>
   )
 }

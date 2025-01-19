@@ -8,16 +8,81 @@ datasource db {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  name          String    @db.VarChar(100)
-  email         String    @unique(map: "email") @db.VarChar(255)
-  password      String    @db.VarChar(2083)
-  short_bio     String?   @db.VarChar(160)
-  avatar        String?   @db.VarChar(2083)
-  isActive      Int?      @default(0) @db.TinyInt
-  isBlacklisted Int?      @default(0) @db.TinyInt
-  domain        String    @unique(map: "domain") @db.VarChar(255)
-  about         String?   @db.VarChar(250)
-  created_at    DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
-  isPremium     Int?      @default(0) @db.TinyInt
+  id            String     @id @db.Char(36)
+  name          String     @db.VarChar(100)
+  email         String     @unique(map: "email") @db.VarChar(255)
+  password      String     @db.VarChar(2083)
+  short_bio     String?    @db.VarChar(160)
+  avatar        String?    @db.Text
+  about         String?    @db.VarChar(250)
+  domain        String     @unique(map: "domain") @db.VarChar(255)
+  isActive      Boolean?   @default(false)
+  isBlacklisted Boolean?   @default(false)
+  isPremium     Boolean?   @default(false)
+  created_at    DateTime?  @default(now()) @db.Timestamp(0)
+  articles      articles[]
+  comments      comments[]
+  likes         likes[]
+}
+
+model article_tags {
+  article_id String    @db.Char(36)
+  tag_id     String    @db.Char(36)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  articles   articles  @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_tags_ibfk_1")
+  tags       tags      @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_tags_ibfk_2")
+
+  @@id([article_id, tag_id])
+  @@index([tag_id], map: "tag_id")
+}
+
+model articles {
+  id           String         @id @db.Char(36)
+  author_id    String         @db.Char(36)
+  title        String         @db.VarChar(255)
+  slug         String         @unique(map: "slug") @db.VarChar(355)
+  content      String         @db.Text
+  thumbnail    String?        @db.Text
+  views        Int?           @default(0)
+  is_published Boolean?       @default(false)
+  created_at   DateTime?      @default(now()) @db.Timestamp(0)
+  updated_at   DateTime?      @default(now()) @db.Timestamp(0)
+  article_tags article_tags[]
+  User         User           @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_ibfk_1")
+  comments     comments[]
+  likes        likes[]
+
+  @@index([author_id], map: "author_id")
+}
+
+model comments {
+  id         String    @id @db.Char(36)
+  article_id String    @db.Char(36)
+  author_id  String    @db.Char(36)
+  content    String    @db.Text
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  articles   articles  @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_1")
+  User       User      @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_2")
+
+  @@index([article_id], map: "article_id")
+  @@index([author_id], map: "author_id")
+}
+
+model likes {
+  id         String    @id @db.Char(36)
+  article_id String    @db.Char(36)
+  user_id    String    @db.Char(36)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  articles   articles  @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "likes_ibfk_1")
+  User       User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "likes_ibfk_2")
+
+  @@index([article_id], map: "article_id")
+  @@index([user_id], map: "user_id")
+}
+
+model tags {
+  id           String         @id @db.Char(36)
+  name         String         @unique(map: "name") @db.VarChar(50)
+  created_at   DateTime?      @default(now()) @db.Timestamp(0)
+  article_tags article_tags[]
 }
