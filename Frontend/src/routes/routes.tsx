@@ -12,6 +12,7 @@ import RootLayout from "@/Layouts/RootLayout";
 import SettingLayout from "@/Layouts/SettingLayout";
 import TextEditor from "@/Layouts/TextEditor";
 import Login from "@/pages/Login";
+import PublishArticle from "@/pages/PublishArticle";
 import Signup from "@/pages/Signup";
 
 import { createBrowserRouter } from 'react-router-dom';
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: "editor",
         element: <TextEditor />,
+      },
+      {
+        path:"publish/p/:id",
+        element: <PublishArticle />,
       },
       {
         path: "profile/:domain",

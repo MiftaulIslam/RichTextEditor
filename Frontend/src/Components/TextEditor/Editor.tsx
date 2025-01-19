@@ -53,7 +53,7 @@ const Editor: React.FC<EditorProps> = ({ handleContent }) => {
   };
 
   return (
-    <div className="flex-1 p-4 overflow-auto focus:outline-none ">
+    <div className=" flex-1 p-4 overflow-auto focus:outline-none ">
       <div className="w-full max-w-3xl m-auto h-full ">
         <div
           className="w-full min-h-full editor p-4 overflow-auto focus:outline-none bg-white shadow-xl rounded border-b border-l border-r"

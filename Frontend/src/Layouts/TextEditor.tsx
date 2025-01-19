@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
-import { Sidebar } from "../Components/TextEditor/Sidebar";
-// import { Toolbar } from "../Components/TextEditor/Toolbar";
 import Editor from "@/Components/TextEditor/Editor";
 import Toolbar from "@/Components/TextEditor/Toolbar";
+import { Link } from "react-router-dom";
 
 const TextEditor = () => {
   const [content, setContent] = useState("<p style='font-size: 12px;'>Start typing...</p>");
   const [isBoldActive, setIsBoldActive] = useState(false);
   const [isUnderlineActive, setIsUnderlineActive] = useState(false);
   const [isItalicActive, setIsItalicActive] = useState(false);
-  
+
   useEffect(() => {
     // Check if bold, italic, or underline is active when the editor is updated
     setIsBoldActive(document.queryCommandState('bold'));
@@ -46,34 +45,42 @@ const TextEditor = () => {
   const handleHeading3 = () => {
     document.execCommand("formatBlock", false, "h3");
   };
-const [fontSize, setFontSize] = useState(12);
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar content={content} />
       <main className="flex-1 flex flex-col overflow-hidden">
-        <Toolbar 
-        isboldactive={isBoldActive} 
-        isunderlineactive = {isUnderlineActive} 
-        isitalicactive={isItalicActive} 
-        fontsize={fontSize}
-        handlebold={handleBold} 
-        handleunderline={handleUnderline} 
-        handleitalic={handleItalic} 
-        handlecontentleft={()=>document.execCommand('justifyLeft')} 
-        handlecontentcenter={()=>document.execCommand('justifyCenter')} 
-        handlecontentright={()=>document.execCommand('justifyRight')} 
-        handleorderlist={handleOrderList }
-        handleunorderlist={handleUnorderList }
-        handleheading1 = {handleHeading1}
-        handleheading2= {handleHeading2}
-        handleheading3= {handleHeading3}
-        handlefontsize={setFontSize}
-        />
-      
-        <Editor  handleContent ={setContent}/>
-        {/* <div dangerouslySetInnerHTML={{ __html: content }}/> */}
- 
+        <div className="border-b bg-white flex justify-between items-center py-2 px-4 gap-4">
+          <Toolbar
+            isboldactive={isBoldActive}
+            isunderlineactive={isUnderlineActive}
+            isitalicactive={isItalicActive}
+            handlebold={handleBold}
+            handleunderline={handleUnderline}
+            handleitalic={handleItalic}
+            handlecontentleft={() => document.execCommand('justifyLeft')}
+            handlecontentcenter={() => document.execCommand('justifyCenter')}
+            handlecontentright={() => document.execCommand('justifyRight')}
+            handleorderlist={handleOrderList}
+            handleunorderlist={handleUnorderList}
+            handleheading1={handleHeading1}
+            handleheading2={handleHeading2}
+            handleheading3={handleHeading3}
+          />
+
+
+          <Link
+          to={"/publish/p/:id"}
+            type="submit"
+            className="px-8 py-2 bg-green-600 text-white font-semibold rounded  hover:bg-green-800"
+          >
+            Publish
+          </Link>
+
+        </div>
+
+
+        <Editor handleContent={setContent} />
+
       </main>
     </div>
   );
