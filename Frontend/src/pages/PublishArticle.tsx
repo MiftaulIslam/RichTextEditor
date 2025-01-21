@@ -118,12 +118,12 @@ const PublishArticle = () => {
   if(loading||isLoading) return <BounceLoader/>
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="mx-auto p-6 max-w-4xl">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-xl font-semibold">Story Preview</h1>
-          <div className="text-sm text-gray-600">
+          <h1 className="font-semibold text-xl">Story Preview</h1>
+          <div className="text-gray-600 text-sm">
             Publishing by: <span className="font-medium">{userInfo?.data.name}</span>
           </div>
         </div>
@@ -131,20 +131,20 @@ const PublishArticle = () => {
         {/* Image Upload Section */}
         <div className="relative">
           {imagePreview ? (
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
+            <div className="relative rounded-lg w-full overflow-hidden aspect-[16/9]">
               <img src={imagePreview} alt="Article preview" className="object-cover" />
               <button
                 type="button"
                 onClick={handleRemoveImage}
-                className="absolute top-4 right-4 p-1 bg-white rounded-full shadow-lg hover:bg-gray-100"
+                className="top-4 right-4 absolute bg-white hover:bg-gray-100 shadow-lg p-1 rounded-full"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <label className="flex flex-col items-center justify-center w-full aspect-[16/9] border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-              <div className="text-center p-6">
-                <p className="text-sm text-gray-600">
+            <label className="flex flex-col justify-center items-center border-2 border-gray-300 hover:bg-gray-50 border-dashed rounded-lg w-full cursor-pointer aspect-[16/9]">
+              <div className="p-6 text-center">
+                <p className="text-gray-600 text-sm">
                   Include a high-quality image in your story to make it more inviting to readers.
                 </p>
                 <input
@@ -165,26 +165,26 @@ const PublishArticle = () => {
             type="text"
             placeholder="Write a preview title..."
             {...register("title", { required: true })}
-            className="w-full text-3xl font-bold border-none focus:outline-none focus:ring-0 placeholder-gray-400"
+            className="border-none focus:ring-0 w-full font-bold text-3xl focus:outline-none placeholder-gray-400"
           />
           <input
             type="text"
             placeholder="Write a preview subtitle..."
             {...register("short_preview")}
-            className="w-full text-xl text-gray-600 border-none focus:outline-none focus:ring-0 placeholder-gray-400"
+            className="border-none focus:ring-0 w-full text-gray-600 text-xl focus:outline-none placeholder-gray-400"
           />
         </div>
 
         {/* Topics Section */}
         <div className="space-y-2">
-          <p className="text-sm text-gray-600">
+          <p className="text-gray-600 text-sm">
             Add or change topics (up to 5) so readers know what your story is about.
           </p>
           <div className="flex flex-wrap gap-2">
             {topics.map((topic, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100"
+                className="inline-flex items-center bg-gray-100 px-3 py-1 rounded-full text-sm"
               >
                 {topic}
                 <button
@@ -203,7 +203,7 @@ const PublishArticle = () => {
                 onChange={(e) => setNewTopic(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddTopic()}
                 placeholder="Add a topic..."
-                className="border-none bg-transparent focus:outline-none focus:ring-0 text-sm placeholder-gray-400"
+                className="bg-transparent border-none focus:ring-0 text-sm focus:outline-none placeholder-gray-400"
               />
             )}
           </div>
@@ -213,7 +213,7 @@ const PublishArticle = () => {
         {showSchedule && (
           <div className="space-y-4 p-4 border rounded-lg">
             <div className="space-y-2">
-              <p className="text-sm font-medium">Schedule a time to publish:</p>
+              <p className="font-medium text-sm">Schedule a time to publish:</p>
               <Controller
                 name="publishAt"
                 control={control}
@@ -221,11 +221,11 @@ const PublishArticle = () => {
                   <input
                     type="datetime-local"
                     {...field}
-                    className="w-full border rounded-md px-3 py-2"
+                    className="px-3 py-2 border rounded-md w-full"
                   />
                 )}
               />
-              <p className="text-sm text-gray-500">Dhaka time (GMT+6)</p>
+              <p className="text-gray-500 text-sm">Dhaka time (GMT+6)</p>
             </div>
           </div>
         )}
@@ -233,9 +233,15 @@ const PublishArticle = () => {
         {/* Action Buttons */}
         <div className="space-y-4">
           <div className="flex gap-4">
+          <button
+              type="button"
+              className="bg-sky-600 hover:bg-sky-700 px-4 py-2 rounded-full text-white"
+            >
+              Preview Article
+            </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-full text-white"
             >
               {showSchedule ? "Schedule to publish" : "Publish now"}
             </button>
