@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { UserRoutes } from '../controllers/user/user.route';
 import { ArticlesRoutes } from '../controllers/articles/articles.route';
+import { FollowersRoutes } from '../controllers/followers/followers.route';
+import { NotificationsRoutes } from '../controllers/notifications/notifications.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -10,6 +12,14 @@ const moduleRoutes = [
   },  {
     path: '/articles',
     route: ArticlesRoutes,
+  },
+  {
+    path: '/followers',
+    route: FollowersRoutes,
+  },
+  {
+    path: '/notifications',
+    route: NotificationsRoutes,
   },
 ];
 

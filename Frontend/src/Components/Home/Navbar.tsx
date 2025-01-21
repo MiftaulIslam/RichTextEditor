@@ -1,16 +1,44 @@
-
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Search, Bell, Edit, ChevronDown, X, User, ArrowRight } from 'lucide-react'
 import { Link } from "react-router-dom"
 import Logo from "../Logo"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import BounceLoader from "../BounchLoader"
 import { IUser } from "@/Interfaces/AuthInterfaces"
 import Alert from "@/widgets/Icons/Alert"
+import socket from '@/socket/socketServer'
+import useTokenStore from "@/store/TokenStore"
+import { base_url } from "@/static/data"
+
+interface NotificationSender {
+  name: string;
+  avatar: string;
+}
+
+interface INotification {
+  id: string;
+  recipient_id: string;
+  sender_id: string;
+  type: 'follow' | 'comment' | 'like' | 'article';
+  title: string;
+  content: string;
+  url_to: string;
+  is_read: boolean;
+  highlight: boolean;
+  created_at: string;
+  sender: NotificationSender;
+}
+
+interface NotificationGroup {
+  category: string;
+  count: number;
+  items: INotification[];
+}
 
 export default function Navbar() {
 
+  const token = useTokenStore((state) => state.token);
   const { data: userInfo, isLoading } = useQuery<{ data: IUser }>({
     queryKey: ['user'],
     enabled: false,
@@ -169,6 +197,71 @@ export default function Navbar() {
     },
   ];
 
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    socket.on('new-notification', (notification) => {
+      queryClient.setQueryData(['notifications'], (oldData: any) => {
+        if (!oldData) return [notification];
+        return [notification, ...oldData];
+      });
+    });
+
+    return () => {
+      socket.off('new-notification');
+    };
+  }, [queryClient]);
+
+  const { data: notificationsData } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: async () => {
+      const response = await fetch(`${base_url}/notifications`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      return data.data as INotification[];
+    },
+    enabled: !!token
+  });
+
+  // Group notifications by type
+  const notificationGroups: NotificationGroup[] = useMemo(() => {
+    if (!notificationsData) return [];
+
+    const groups: Record<string, INotification[]> = {
+      'New Followers': [],
+      'New Comments': [],
+      'New Articles': [],
+      'New Likes': []
+    };
+
+    notificationsData.forEach(notification => {
+      switch (notification.type) {
+        case 'follow':
+          groups['New Followers'].push(notification);
+          break;
+        case 'comment':
+          groups['New Comments'].push(notification);
+          break;
+        case 'article':
+          groups['New Articles'].push(notification);
+          break;
+        case 'like':
+          groups['New Likes'].push(notification);
+          break;
+      }
+    });
+
+    return Object.entries(groups)
+      .filter(([_, items]) => items.length > 0)
+      .map(([category, items]) => ({
+        category,
+        count: items.filter(item => !item.is_read).length,
+        items
+      }));
+  }, [notificationsData]);
 
   if (isLoading) return <BounceLoader />
   return (
@@ -230,52 +323,67 @@ export default function Navbar() {
                   className="top-12 right-0 z-40 absolute border-gray-200 bg-white shadow-lg border rounded-md w-80"
                 >
                   <div className="py-2">
-                    {notificationDropDownItems.map((item, index) => (
+                    {notificationGroups.map((group, index) => (
                       <div key={index} className="relative">
                         <div
-                          onClick={() => toggleCategory(item.category)}
+                          onClick={() => toggleCategory(group.category)}
                           className="flex justify-between items-center hover:bg-gray-50 px-4 py-2 text-gray-700 text-sm cursor-pointer"
                         >
                           <p className="flex items-start">
-                            {item.category}
-                            {item.count > 0 && (
+                            {group.category}
+                            {group.count > 0 && (
                               <span className="inline-block bg-green-700 ml-2 rounded-full w-2 h-2"></span>
                             )}
                           </p>
-                          {expandedCategory === item.category ? <X onClick={() => {
-                            setIsNotificationDropDownOpen(!isNotificationDropDownOpen)
-                          }} size={16} /> : <ArrowRight size={16} />}
+                          {expandedCategory === group.category ? (
+                            <X onClick={() => setIsNotificationDropDownOpen(false)} size={16} />
+                          ) : (
+                            <ArrowRight size={16} />
+                          )}
                         </div>
                         <AnimatePresence>
-                          {expandedCategory === item.category && (
+                          {expandedCategory === group.category && (
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
                               exit={{ opacity: 0, height: 0 }}
                               className="overflow-hidden"
                             >
-                              {item.items.map((notification, idx) => (
+                              {group.items.map((notification) => (
                                 <a
-                                  key={idx}
-                                  href={notification.urlTo}
+                                  key={notification.id}
+                                  href={notification.url_to}
+                                  onClick={async (e) => {
+                                    e.preventDefault();
+                                    // Mark as read
+                                    await fetch(`${base_url}/notifications/${notification.id}/read`, {
+                                      method: 'PUT',
+                                      headers: {
+                                        Authorization: `Bearer ${token}`
+                                      }
+                                    });
+                                    queryClient.invalidateQueries(['notifications']);
+                                    window.location.href = notification.url_to;
+                                  }}
                                   className={`block px-4 py-3 text-sm border-l-4 ${
-                                    notification.highlight 
-                                      ? 'bg-blue-50 border-blue-500 hover:bg-blue-100' 
+                                    !notification.is_read
+                                      ? 'bg-blue-50 border-blue-500 hover:bg-blue-100'
                                       : 'bg-white border-transparent hover:bg-blue-100'
                                   } transition-colors duration-150`}
                                 >
                                   <div className="flex items-start space-x-3">
                                     <img
-                                      src={notification.author.image || "/placeholder.svg"}
-                                      alt={notification.author.name}
+                                      src={notification.sender.avatar || "/placeholder.svg"}
+                                      alt={notification.sender.name}
                                       className="rounded-full w-8 h-8"
                                     />
                                     <div>
-                                      <Link to={notification.urlTo} className="text-gray-600" >
-                                        <span className="font-semibold">{notification.author.name} </span>posted a new article titled <span className="font-bold"> {notification.title}
-                                        </span>
-                                      </Link>
-
+                                      <span className="font-semibold">
+                                        {notification.sender.name}{' '}
+                                      </span>
+                                      <span className="text-gray-600">
+                                        {notification.content}
+                                      </span>
                                     </div>
                                   </div>
                                 </a>
@@ -294,11 +402,13 @@ export default function Navbar() {
               whileTap={{ scale: 0.95 }}
               className="relative"
             >
-              <Bell onClick={() => {
-                setIsNotificationDropDownOpen(!isNotificationDropDownOpen)
-              }}
-                className="w-5 h-5 text-gray-500" />
-              <span className="-top-1 -right-1 absolute bg-green-500 rounded-full w-2 h-2" />
+              <Bell
+                onClick={() => setIsNotificationDropDownOpen(!isNotificationDropDownOpen)}
+                className="w-5 h-5 text-gray-500"
+              />
+              {notificationsData?.some(n => !n.is_read) && (
+                <span className="-top-1 -right-1 absolute bg-green-500 rounded-full w-2 h-2" />
+              )}
             </motion.button>
 
             <div>

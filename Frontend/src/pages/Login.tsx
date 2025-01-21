@@ -31,11 +31,11 @@ export default function Login() {
     await sendRequest(`user/login`, "POST", formData);
 
   };
-
   useEffect(() => {
     if (token) { navigate('/') }
     if (statusCode === 200 && !error && data) {
       setToken(data?.token)
+      
       navigate('/')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

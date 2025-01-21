@@ -5,6 +5,7 @@ import path from "path";
 dotenv.config({ path: path.join((process.cwd(), '.env')) });
 
 export const node_env = process.env.NODE_ENV;
+export const frontend_url = process.env.FRONTEND_URL;
 export const base_url = node_env != 'production' ? process.env.BASE_URL: process.env.PRODUCTION_BASE_URL;
 export const port = process.env.PORT;
 export const salt = process.env.SALT;

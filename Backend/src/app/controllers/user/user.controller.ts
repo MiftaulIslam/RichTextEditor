@@ -20,6 +20,7 @@ import axios from "axios";
 import FormData from "form-data";
 import { AuthenticatedRequest } from "../../middlewares/isAuthenticate";
 import { v4 as uuidv4 } from 'uuid';
+import { io } from "../../../socket/socketServer";
 
 const prisma = new PrismaClient();
 //User repository
@@ -264,6 +265,7 @@ const login: RequestHandler = catchAsync(async (req, res, next) => {
   );
   res.cookie("authenticate-token", token);
 
+  io.emit('user-logged-in',{id:user.id, email:user.email})
   return sendResponseWithToken(res, {
     success: true,
     message: "User logged in successfully",
@@ -293,7 +295,6 @@ const activateAccount: RequestHandler = catchAsync(async (req, res, next) => {
     }
     // Update the user's status to active
     await _userRepository.update({ where: { id: user.id } }, { isActive: true });
-
     // Send a success response
     return sendResponse(res, {
       success: true,
