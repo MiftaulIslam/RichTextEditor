@@ -6,6 +6,7 @@ import MembershipAndPaymentSetting from "@/Components/Setting/MembershipAndPayme
 import NotificationSetting from "@/Components/Setting/NotificationSetting";
 import PublishingSetting from "@/Components/Setting/PublishingSetting";
 import SecuritySetting from "@/Components/Setting/SecuritySetting";
+import Articles from "@/Layouts/Articles";
 import HomeLayout from "@/Layouts/HomeLayout";
 import ProfileLayout from "@/Layouts/ProfileLayout";
 import RootLayout from "@/Layouts/RootLayout";

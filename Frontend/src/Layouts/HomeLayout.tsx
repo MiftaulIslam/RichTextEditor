@@ -1,11 +1,14 @@
+import Articles from "./Articles";
 
 const HomeLayout = () => {
-  
   return (
-    <main>
-      {/* // Navbar */}
-      {/* <Navbar /> */}
-      {/* {userdata?.message ? <p>{userdata.message}</p> : <p>No user data found</p>} */}
+    <main className="min-h-screen">
+      <div className="mx-auto px-4 py-8 max-w-7xl">
+        <Articles />
+        {/* Navbar */}
+        {/* <Navbar /> */}
+        {/* {userdata?.message ? <p>{userdata.message}</p> : <p>No user data found</p>} */}
+      </div>
     </main>
   );
 };
