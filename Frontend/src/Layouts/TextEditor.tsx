@@ -1,27 +1,27 @@
 import { useEffect, useState } from "react";
 import Editor from "@/Components/TextEditor/Editor";
 import Toolbar from "@/Components/TextEditor/Toolbar";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useFetchQuery } from "@/hooks/useFetchQuery";
 import useTokenStore from "@/store/TokenStore";
-interface article{
-  id:string;
-  author_id:string;
-  title:string;
-  content:string;
-  created_at:string;
-  is_published:boolean;
-  publishedAt: string|null;
-  slug:string;
-  thumbnail:string|null;
-  updated_at:string;
-  views:number;
+interface article {
+  id: string;
+  author_id: string;
+  title: string;
+  content: string;
+  created_at: string;
+  is_published: boolean;
+  publishedAt: string | null;
+  slug: string;
+  thumbnail: string | null;
+  updated_at: string;
+  views: number;
 }
 interface articleResponse {
-message:string;
-statusCode:number;
-success:boolean;
-data: article;
+  message: string;
+  statusCode: number;
+  success: boolean;
+  data: article;
 }
 const TextEditor = () => {
   const [content, setContent] = useState<string>('');
@@ -72,16 +72,16 @@ const TextEditor = () => {
   const handleSubmit = async () => {
     const body = { "content": content };
     const headers = { Authorization: `Bearer ${token}` };
-    
-      const response = await fetchRequest("articles/p", "POST", body, { headers })
+
+    const response = await fetchRequest("articles/p", "POST", body, { headers })
     navigate(`publish/p/${response?.data.id}`)
-   
+
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="border-b bg-white flex justify-between items-center py-2 px-4 gap-4">
+    <div className="flex bg-gray-100 h-screen">
+      <main className="flex flex-col flex-1 overflow-hidden">
+        <div className="flex justify-between items-center gap-4 bg-white px-4 py-2 border-b">
           <Toolbar
             isboldactive={isBoldActive}
             isunderlineactive={isUnderlineActive}
@@ -98,12 +98,11 @@ const TextEditor = () => {
             handleheading2={handleHeading2}
             handleheading3={handleHeading3}
           />
-
-
+          
           <button
             onClick={handleSubmit}
-            disabled = {!content}
-            className="px-8 py-2 bg-green-600 text-white font-semibold rounded  hover:bg-green-800"
+            disabled={!content}
+            className="bg-green-600 hover:bg-green-800 px-8 py-2 rounded font-semibold text-white"
           >
             Proceed to Publish
           </button>
