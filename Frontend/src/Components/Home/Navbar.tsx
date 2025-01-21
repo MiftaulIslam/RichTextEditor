@@ -60,7 +60,7 @@ export default function Navbar() {
   const notificationDropDownItems = [
     {
       category: "New Articles",
-      count: 5, //ei baler number ashbe dynamically
+      count: 5, 
       items: [
         {
           author: {
@@ -68,7 +68,7 @@ export default function Navbar() {
             image: "https://i.ibb.co.com/Wsj077d/597e9d22564b.jpg",
           },
           title: "Veganism",
-          content: "Veganism faltu jinis, jottosov",
+          content: "Veganism amar ....",
           urlTo: "eda-test-url-1",
           highlight: true,
         },
@@ -97,7 +97,7 @@ export default function Navbar() {
 
     {
       category: "New Comments",
-      count: 5, //ei baler number ashbe dynamically
+      count: 5, 
       items: [
         {
           author: {
@@ -105,7 +105,7 @@ export default function Navbar() {
             image: "https://i.ibb.co.com/Wsj077d/597e9d22564b.jpg",
           },
           title: "Veganism",
-          content: "Veganism amar cheter bal. Eda amar dhoner niyom",
+          content: "Veganism amar ....",
           urlTo: "eda-test-url-1",
           highlight: true,
         },
@@ -133,7 +133,7 @@ export default function Navbar() {
     },
     {
       category: "Others",
-      count: 5, //ei baler number ashbe dynamically
+      count: 5, 
       items: [
         {
           author: {
@@ -141,7 +141,7 @@ export default function Navbar() {
             image: "https://i.ibb.co.com/Wsj077d/597e9d22564b.jpg",
           },
           title: "Veganism",
-          content: "Veganism amar cheter bal. Eda amar dhoner niyom",
+          content: "Veganism amar ....",
           urlTo: "eda-test-url-1",
           highlight: true,
         },
@@ -239,7 +239,7 @@ export default function Navbar() {
                           <p className="flex items-start">
                             {item.category}
                             {item.count > 0 && (
-                              <span className="inline-block bg-red-700 ml-2 rounded-full w-2 h-2"></span>
+                              <span className="inline-block bg-green-700 ml-2 rounded-full w-2 h-2"></span>
                             )}
                           </p>
                           {expandedCategory === item.category ? <X onClick={() => {
@@ -300,75 +300,6 @@ export default function Navbar() {
                 className="w-5 h-5 text-gray-500" />
               <span className="-top-1 -right-1 absolute bg-green-500 rounded-full w-2 h-2" />
             </motion.button>
-            <AnimatePresence>
-              {isNotificationDropDownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="top-8 -right-20 2xl:-right-40 z-40 absolute border-gray-200 bg-white shadow-lg border rounded-md w-80"
-                >
-                  <div className="py-2">
-                    {notificationDropDownItems.map((item, index) => (
-                      <div key={index} className="relative">
-                        <div
-                          onClick={() => toggleCategory(item.category)}
-                          className="flex justify-between items-center hover:bg-gray-50 px-4 py-2 text-gray-700 text-sm cursor-pointer"
-                        >
-                          <p className="flex items-start">
-                            {item.category}
-                            {item.count > 0 && (
-                              <span className="inline-block bg-red-700 ml-2 rounded-full w-2 h-2"></span>
-                            )}
-                          </p>
-                          {expandedCategory === item.category ? <X onClick={() => {
-                            setIsNotificationDropDownOpen(!isNotificationDropDownOpen)
-                          }} size={16} /> : <ArrowRight size={16} />}
-                        </div>
-                        <AnimatePresence>
-                          {expandedCategory === item.category && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="overflow-hidden"
-                            >
-                              {item.items.map((notification, idx) => (
-                                <a
-                                  key={idx}
-                                  href={notification.urlTo}
-                                  className={`block px-4 py-3 text-sm border-l-4 ${
-                                    notification.highlight 
-                                      ? 'bg-blue-50 border-blue-500 hover:bg-blue-100' 
-                                      : 'bg-white border-transparent hover:bg-blue-100'
-                                  } transition-colors duration-150`}
-                                >
-                                  <div className="flex items-start space-x-3">
-                                    <img
-                                      src={notification.author.image || "/placeholder.svg"}
-                                      alt={notification.author.name}
-                                      className="rounded-full w-8 h-8"
-                                    />
-                                    <div>
-                                      <Link to={notification.urlTo} className="text-gray-600" >
-                                        <span className="font-semibold">{notification.author.name} </span>posted a new article titled <span className="font-bold"> {notification.title}
-                                        </span>
-                                      </Link>
-
-                                    </div>
-                                  </div>
-                                </a>
-                              ))}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            </div>
 
             <div>
               {!userInfo ? (
