@@ -6,6 +6,7 @@ import helmet from "helmet";
 import cors from "cors";
 import { globalErrorHandler, notFound } from "./app/middlewares"; // Importing both middlewares
 import routes from "./app/routes/routes";
+import { scheduleArticlePublishing } from './app/cronJobs/scheduleBasedArticlePublishing';
 
 const app: Application = express();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cors());
+scheduleArticlePublishing();
 /* application routes */
 app.use(`/api/v1`, routes);
 

@@ -30,7 +30,7 @@ const router = createBrowserRouter([
         element: <TextEditor />,
       },
       {
-        path:"publish/p/:id",
+        path:"editor/publish/p/:articleId",
         element: <PublishArticle />,
       },
       {

@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import catchAsync from "../../utils/CatchAsyncError";
 import sendResponse, { sendResponseWithToken } from "../../utils/SendResponse";
 import {
+  BAD_REQUEST,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
   OK,
@@ -132,7 +133,7 @@ await mailSender({
     { where: { id: req.id } },
     {
       email:email, // Update the email
-      isActive: 0, // Deactivate the account until the email is confirmed
+      isActive: false, // Deactivate the account until the email is confirmed
     }
   );
 
@@ -180,20 +181,25 @@ const signUp: RequestHandler = catchAsync(async (req, res, next) => {
 
     // Upload avatar to imgbb if provided
     if (req.file) {
-      const formData = new FormData();
-      formData.append("image", req.file.buffer.toString("base64"));
-      const imgbbResponse = await axios.post(
-        `https://api.imgbb.com/1/upload?key=${imgbb_api_key}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
+      try {
+        const formData = new FormData();
+        formData.append("image", req.file.buffer.toString("base64"));
+        const imgbbResponse = await axios.post(
+          `https://api.imgbb.com/1/upload?key=${imgbb_api_key}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
           },
-        },
-      );
-
-      avatar = imgbbResponse.data.data.url;
-    }
+        );
+        
+        avatar = imgbbResponse.data.data.url;
+        
+      } catch (error) {
+        return next(new ErrorHandler("Failed to upload image", INTERNAL_SERVER_ERROR))    
+      }
+      }
 
     const user = await _userRepository.create({
       id:uuidv4(),
@@ -286,7 +292,7 @@ const activateAccount: RequestHandler = catchAsync(async (req, res, next) => {
       return next(new ErrorHandler("Account already activated", UNAUTHORIZED));
     }
     // Update the user's status to active
-    await _userRepository.update({ where: { id: user.id } }, { isActive: 1 });
+    await _userRepository.update({ where: { id: user.id } }, { isActive: true });
 
     // Send a success response
     return sendResponse(res, {

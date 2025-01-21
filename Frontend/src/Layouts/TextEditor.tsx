@@ -1,14 +1,36 @@
 import { useEffect, useState } from "react";
 import Editor from "@/Components/TextEditor/Editor";
 import Toolbar from "@/Components/TextEditor/Toolbar";
-import { Link } from "react-router-dom";
-
+import {  useNavigate } from "react-router-dom";
+import { useFetchQuery } from "@/hooks/useFetchQuery";
+import useTokenStore from "@/store/TokenStore";
+interface article{
+  id:string;
+  author_id:string;
+  title:string;
+  content:string;
+  created_at:string;
+  is_published:boolean;
+  publishedAt: string|null;
+  slug:string;
+  thumbnail:string|null;
+  updated_at:string;
+  views:number;
+}
+interface articleResponse {
+message:string;
+statusCode:number;
+success:boolean;
+data: article;
+}
 const TextEditor = () => {
-  const [content, setContent] = useState("<p style='font-size: 12px;'>Start typing...</p>");
+  const [content, setContent] = useState<string>('');
   const [isBoldActive, setIsBoldActive] = useState(false);
   const [isUnderlineActive, setIsUnderlineActive] = useState(false);
   const [isItalicActive, setIsItalicActive] = useState(false);
 
+  const { fetchRequest } = useFetchQuery<articleResponse>();
+  const navigate = useNavigate();
   useEffect(() => {
     // Check if bold, italic, or underline is active when the editor is updated
     setIsBoldActive(document.queryCommandState('bold'));
@@ -46,6 +68,16 @@ const TextEditor = () => {
     document.execCommand("formatBlock", false, "h3");
   };
 
+  const token = useTokenStore((state) => state.token);
+  const handleSubmit = async () => {
+    const body = { "content": content };
+    const headers = { Authorization: `Bearer ${token}` };
+    
+      const response = await fetchRequest("articles/p", "POST", body, { headers })
+    navigate(`publish/p/${response?.data.id}`)
+   
+  }
+
   return (
     <div className="flex h-screen bg-gray-100">
       <main className="flex-1 flex flex-col overflow-hidden">
@@ -68,13 +100,13 @@ const TextEditor = () => {
           />
 
 
-          <Link
-          to={"/publish/p/:id"}
-            type="submit"
+          <button
+            onClick={handleSubmit}
+            disabled = {!content}
             className="px-8 py-2 bg-green-600 text-white font-semibold rounded  hover:bg-green-800"
           >
-            Publish
-          </Link>
+            Proceed to Publish
+          </button>
 
         </div>
 
