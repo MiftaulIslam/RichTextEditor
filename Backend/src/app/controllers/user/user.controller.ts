@@ -25,21 +25,32 @@ import { io } from "../../../socket/socketServer";
 const prisma = new PrismaClient();
 //User repository
 const _userRepository = new Repository<User>("User");
-const getUserByDomain = catchAsync(async (req, res, next)=>{
- 
-  const {domain} = req.params;
-  const user = await _userRepository.findUnique({where:{domain}});
-  
-  console.log(user)
-  if(!user) return next(new ErrorHandler("User not found", NOT_FOUND));
-  sendResponse(res,{
-    success:true,
-    message:"User found",
-    statusCode:OK,
-    data:user
-  })
+const getUserByDomain = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+  const { domain } = req.params;
+  const userId = req.id;
 
-})
+  const user = await _userRepository.findUnique({
+    where: {
+      domain: domain, // Replace userId with the actual user ID you're looking for
+    },
+    include: {
+      follows_follows_following_idToUser: {
+        include: {
+          User_follows_follower_idToUser: true,
+        },
+      },
+    },
+  });
+
+  if (!user) return next(new ErrorHandler("User not found", NOT_FOUND));
+
+  sendResponse(res, {
+    success: true,
+    message: "User found",
+    statusCode: OK,
+    data:user
+  });
+});
 const getAuthenticateUserInfo = catchAsync(async (req:AuthenticatedRequest, res, next)=>{
   try {
     

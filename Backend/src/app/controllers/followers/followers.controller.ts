@@ -3,7 +3,7 @@ import { Repository } from "../../repository/implementation/Repository";
 import catchAsync from '../../utils/CatchAsyncError';
 import { AuthenticatedRequest } from '../../middlewares/isAuthenticate';
 import { v4 as uuidv4 } from 'uuid';
-import { io } from '../../../socket/socketServer';
+import { io, userSocketMap } from '../../../socket/socketServer';
 import sendResponse from '../../utils/SendResponse';
 import { BAD_REQUEST, OK } from '../../utils/Http-Status';
 import ErrorHandler from '../../utils/ErrorHandler';
@@ -21,8 +21,8 @@ const followUser = catchAsync(async (req: AuthenticatedRequest, res, next) => {
   const existingFollow = await _followersRepository.findUnique({
     where: {
       follower_id_following_id: {
-        follower_id: followerId,  
-        following_id: followingId 
+        follower_id: followerId,
+        following_id: followingId
       }
     }
   });
@@ -36,7 +36,9 @@ const followUser = catchAsync(async (req: AuthenticatedRequest, res, next) => {
     follower_id: followerId,
     following_id: followingId
   });
+
   const follower = await _userRepository.findUnique({where:{id:followerId}})
+  
   // Create notification
   const notification = await _notificationsRepository.create({
     id: uuidv4(),
@@ -50,8 +52,13 @@ const followUser = catchAsync(async (req: AuthenticatedRequest, res, next) => {
     highlight: true
   });
 
-  // Emit socket event
-  io.to(followingId).emit('new-notification', notification);
+  // Get recipient's socket ID and emit notification
+  const recipientSocketId = userSocketMap.get(followingId);
+  console.log(recipientSocketId)
+  if (recipientSocketId) {
+    io.to(recipientSocketId).emit('new-notification', notification);
+    console.log(recipientSocketId)
+  }
 
   return sendResponse(res, {
     success: true,
@@ -68,8 +75,8 @@ const unfollowUser = catchAsync(async (req: AuthenticatedRequest, res, next) => 
   const follow = await _followersRepository.delete({
     where: {
       follower_id_following_id: {
-        followerId,
-        followingId
+        follower_id: followerId,
+        following_id: followingId
       }
     }
   });

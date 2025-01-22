@@ -19,25 +19,57 @@ const prisma = new PrismaClient();
 const _articlesRepository = new Repository<articles>("articles");
 const _tagsRepository = new Repository<tags>("tags");
 const _articleTagsRepository = new Repository<article_tags>("article_tags");
-const getArticles = catchAsync(async (req, res, next) => {
-  try {
-    const articles = await _articlesRepository.findMany();
-    sendResponse(res, {
-      success: true,
-      message: "Articles retrieved successfully",
-      statusCode: OK,
-      data: articles,
-    });
-  } catch (error) {
-    return next(
-      new ErrorHandler("Internal Server Error", INTERNAL_SERVER_ERROR),
-    );
-  }
+const getArticles = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+  const { userId } = req.query; // Check for userId in the query params
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const skip = (page - 1) * limit;
+
+  // Build the query dynamically based on the presence of userId
+  const query: any = userId ? { where: { author_id: userId } } : {};
+  query.include = {
+    User: {
+      select: {
+        name: true,
+        avatar: true,
+        domain: true
+      }
+    },
+    likes: true,
+    comments: true,
+    // bookmarks: true
+  };
+  query.orderBy = {
+    created_at: 'desc'
+  };
+  query.skip = skip;
+  query.take = limit;
+
+  // Fetch articles based on the query
+  const articles = await _articlesRepository.findMany(query);
+
+  // Count total articles for pagination
+  const totalArticles = await _articlesRepository.count(userId ? { where: { author_id: userId } } : {});
+
+  sendResponse(res, {
+    success: true,
+    statusCode: OK,
+    message: userId ? "User articles retrieved successfully" : "All articles retrieved successfully",
+    data: {
+      articles,
+      pagination: {
+        total: totalArticles,
+        page,
+        pages: Math.ceil(totalArticles / limit),
+        limit
+      }
+    }
+  });
 });
+
 
 const addArticle = catchAsync(async (req: AuthenticatedRequest, res, next) => {
   const { content } = req.body;
-  console.log(req.body);
   if (!content) return next(new ErrorHandler("Field missing", BAD_REQUEST));
   const uuId = uuidv4();
   const article = await _articlesRepository.create({
@@ -140,6 +172,51 @@ const updateArticle = catchAsync(async (req, res, next) => {
   });
 });
 
+// const getUserArticles = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+//   const { userId } = req.params;
+//   const page = parseInt(req.query.page as string) || 1;
+//   const limit = parseInt(req.query.limit as string) || 10;
+//   const skip = (page - 1) * limit;
 
+//   const articles = await _articlesRepository.findMany({
+//     where: { user_id: userId },
+//     include: {
+//       user: {
+//         select: {
+//           name: true,
+//           avatar: true,
+//           domain: true
+//         }
+//       },
+//       likes: true,
+//       comments: true,
+//       bookmarks: true
+//     },
+//     orderBy: {
+//       created_at: 'desc'
+//     },
+//     skip,
+//     take: limit
+//   });
+
+//   const totalArticles = await _articlesRepository.count({
+//     where: { user_id: userId }
+//   });
+
+//   sendResponse(res, {
+//     success: true,
+//     statusCode: OK,
+//     message: "User articles retrieved successfully",
+//     data: {
+//       articles,
+//       pagination: {
+//         total: totalArticles,
+//         page,
+//         pages: Math.ceil(totalArticles / limit),
+//         limit
+//       }
+//     }
+//   });
+// });
 
 export const ArticlesControllers = { getArticles, addArticle, updateArticle };

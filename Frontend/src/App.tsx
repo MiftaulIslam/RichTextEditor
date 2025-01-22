@@ -1,4 +1,3 @@
-
 import { RouterProvider } from 'react-router-dom'
 import router from './routes/routes'
 import { useQuery } from '@tanstack/react-query';
@@ -6,10 +5,25 @@ import BounceLoader from './Components/BounchLoader';
 import { IUserInfo } from './Interfaces/AuthInterfaces';
 import { useFetchQuery } from './hooks/useFetchQuery';
 import useTokenStore from './store/TokenStore';
+import { useEffect } from 'react';
+import socket from './socket/socketServer';
 
 function App() {
   const token = useTokenStore((state) => state.token);
   const { fetchRequest } = useFetchQuery<IUserInfo>();
+
+  // Connect socket when app loads
+  useEffect(() => {
+    if (token) {
+      const userId = JSON.parse(atob(token.split('.')[1])).id;
+      socket.connect();
+      socket.emit('join', { userId });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [token]);
 
   const fetchUser = async () => {
     if (token) {
@@ -31,7 +45,7 @@ function App() {
     <>
       <RouterProvider router={router} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

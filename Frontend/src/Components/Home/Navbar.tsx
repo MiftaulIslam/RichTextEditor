@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, Bell, Edit, ChevronDown, X, User, ArrowRight } from 'lucide-react'
+import { Search, Bell, Edit, ChevronDown, X, User } from 'lucide-react'
 import { Link } from "react-router-dom"
 import Logo from "../Logo"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -9,51 +9,115 @@ import { IUser } from "@/Interfaces/AuthInterfaces"
 import Alert from "@/widgets/Icons/Alert"
 import socket from '@/socket/socketServer'
 import useTokenStore from "@/store/TokenStore"
-import { base_url } from "@/static/data"
+import { useFetchQuery } from "@/hooks/useFetchQuery"
+import Notification, { INotification, NotificationGroup } from "./Notification"
 
-interface NotificationSender {
-  name: string;
-  avatar: string;
+interface INotificationResponse {
+  data: INotification[];
+  statusCode: number;
+  message: string;
 }
-
-interface INotification {
-  id: string;
-  recipient_id: string;
-  sender_id: string;
-  type: 'follow' | 'comment' | 'like' | 'article';
-  title: string;
-  content: string;
-  url_to: string;
-  is_read: boolean;
-  highlight: boolean;
-  created_at: string;
-  sender: NotificationSender;
-}
-
-interface NotificationGroup {
-  category: string;
-  count: number;
-  items: INotification[];
-}
-
 export default function Navbar() {
-
+  // ===== State Management =====
   const token = useTokenStore((state) => state.token);
-  const { data: userInfo, isLoading } = useQuery<{ data: IUser }>({
-    queryKey: ['user'],
-    enabled: false,
-  });
+  const queryClient = useQueryClient();
+  const { fetchRequest } = useFetchQuery<INotificationResponse>();
+
+  // Local states for UI controls
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isNotificationDropDownOpen, setIsNotificationDropDownOpen] = useState(false)
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const toggleCategory = (category: string) => {
-    setExpandedCategory(expandedCategory === category ? null : category);
-  };
-  // const [isWatchingArticles, setIsWatchingArticles] = useState(false)
   const [isHover, setIsHover] = useState(false)
 
+  // ===== Data Fetching =====
+  // Fetch user information
+  const { data: userInfo, isLoading } = useQuery<{ data: IUser }>({
+    queryKey: ['user'],
+    enabled: false,
+  });
+
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    if (token) {
+      const headers = { Authorization: `Bearer ${token}` };
+      return await fetchRequest("notifications", "GET", null, { headers });
+    }
+  };
+
+  const { data: notificationsData, refetch: refetchNotifications } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: fetchNotifications,
+    enabled: !!token
+  });
+
+  // ===== Socket Connection =====
+  useEffect(() => {
+    if (!socket.connected && token) {
+      socket.connect();
+    }
+
+    // Handle new notifications
+    const handleNewNotification = (notification: INotification) => {
+      console.log('New notification received:', notification);
+      queryClient.setQueryData(['notifications'], (oldData: INotificationResponse) => {
+        const currentData = oldData?.data || [];
+        return {
+          ...oldData,
+          data: [notification, ...currentData]
+        };
+      });
+      // Force refetch to ensure data consistency
+      refetchNotifications();
+    };
+
+    socket.on('new-notification', handleNewNotification);
+
+    return () => {
+      socket.off('new-notification', handleNewNotification);
+    };
+  }, [token, queryClient, refetchNotifications]);
+
+  // ===== Helper Functions =====
+  // Group notifications by type
+  const notificationGroups: NotificationGroup[] = useMemo(() => {
+    if (!notificationsData?.data || !Array.isArray(notificationsData.data)) return [];
+    
+    const groups: Record<string, INotification[]> = {
+      'New Followers': [],
+      'New Comments': [],
+      'New Articles': [],
+      'New Likes': []
+    };
+
+    notificationsData.data.forEach(notification => {
+      switch (notification.type) {
+        case 'follow':
+          groups['New Followers'].push(notification);
+          break;
+        case 'comment':
+          groups['New Comments'].push(notification);
+          break;
+        case 'article':
+          groups['New Articles'].push(notification);
+          break;
+        case 'like':
+          groups['New Likes'].push(notification);
+          break;
+      }
+    });
+
+    return Object.entries(groups)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .filter(([_, items]) => items.length > 0)
+      .map(([category, items]) => ({
+        category,
+        count: items.filter(item => !item.is_read).length,
+        items
+      }));
+  }, [notificationsData]);
+
+  // ===== Navigation Items =====
   const navItems = [
     "For you",
     "Following",
@@ -64,6 +128,7 @@ export default function Navbar() {
     "Web Development",
   ]
 
+  // ===== Dropdown Menu Items =====
   const dropdownItems = [
     { label: "Profile", href: `/profile/${userInfo?.data.domain}` },
     { label: "Library", href: "/library" },
@@ -84,186 +149,9 @@ export default function Navbar() {
     { label: "Sign out", href: "/signout", action: true },
   ]
 
-
-  const notificationDropDownItems = [
-    {
-      category: "New Articles",
-      count: 5, 
-      items: [
-        {
-          author: {
-            name: "Miftaul Islam Ariyan",
-            image: "https://i.ibb.co.com/Wsj077d/597e9d22564b.jpg",
-          },
-          title: "Veganism",
-          content: "Veganism amar ....",
-          urlTo: "eda-test-url-1",
-          highlight: true,
-        },
-        {
-          author: {
-            name: "Nayef Mohammad Farhan Nisar",
-            image: "https://i.ibb.co/Vw8tBqr/824bd5800350.png",
-          },
-          title: "Suffocation",
-          content: "Suffocation occurs due to the lack of oxygen",
-          urlTo: "eda-test-url-2",
-          highlight: true
-        },
-        {
-          author: {
-            name: "Nayef Mohammad Farhan Nisar 2",
-            image: "https://i.ibb.co/Vw8tBqr/824bd5800350.png",
-          },
-          title: "Suffocation 2",
-          content: "Suffocation occurs due to the lack of oxygen 2",
-          urlTo: "eda-test-url-3",
-          highlight: false,
-        },
-      ],
-    },
-
-    {
-      category: "New Comments",
-      count: 5, 
-      items: [
-        {
-          author: {
-            name: "Miftaul Islam Ariyan",
-            image: "https://i.ibb.co.com/Wsj077d/597e9d22564b.jpg",
-          },
-          title: "Veganism",
-          content: "Veganism amar ....",
-          urlTo: "eda-test-url-1",
-          highlight: true,
-        },
-        {
-          author: {
-            name: "Nayef Mohammad Farhan Nisar",
-            image: "https://i.ibb.co/Vw8tBqr/824bd5800350.png",
-          },
-          title: "Suffocation",
-          content: "Suffocation occurs due to the lack of oxygen",
-          urlTo: "eda-test-url-2",
-          highlight: true
-        },
-        {
-          author: {
-            name: "Nayef Mohammad Farhan Nisar 2",
-            image: "https://i.ibb.co/Vw8tBqr/824bd5800350.png",
-          },
-          title: "Suffocation 2",
-          content: "Suffocation occurs due to the lack of oxygen 2",
-          urlTo: "eda-test-url-3",
-          highlight: false,
-        },
-      ],
-    },
-    {
-      category: "Others",
-      count: 5, 
-      items: [
-        {
-          author: {
-            name: "Miftaul Islam Ariyan",
-            image: "https://i.ibb.co.com/Wsj077d/597e9d22564b.jpg",
-          },
-          title: "Veganism",
-          content: "Veganism amar ....",
-          urlTo: "eda-test-url-1",
-          highlight: true,
-        },
-        {
-          author: {
-            name: "Nayef Mohammad Farhan Nisar",
-            image: "https://i.ibb.co/Vw8tBqr/824bd5800350.png",
-          },
-          title: "Suffocation",
-          content: "Suffocation occurs due to the lack of oxygen",
-          urlTo: "eda-test-url-2",
-          highlight: true
-        },
-        {
-          author: {
-            name: "Nayef Mohammad Farhan Nisar 2",
-            image: "https://i.ibb.co/Vw8tBqr/824bd5800350.png",
-          },
-          title: "Suffocation 2",
-          content: "Suffocation occurs due to the lack of oxygen 2",
-          urlTo: "eda-test-url-3",
-          highlight: false,
-        },
-      ],
-    },
-  ];
-
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    socket.on('new-notification', (notification) => {
-      queryClient.setQueryData(['notifications'], (oldData: any) => {
-        if (!oldData) return [notification];
-        return [notification, ...oldData];
-      });
-    });
-
-    return () => {
-      socket.off('new-notification');
-    };
-  }, [queryClient]);
-
-  const { data: notificationsData } = useQuery({
-    queryKey: ['notifications'],
-    queryFn: async () => {
-      const response = await fetch(`${base_url}/notifications`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      const data = await response.json();
-      return data.data as INotification[];
-    },
-    enabled: !!token
-  });
-
-  // Group notifications by type
-  const notificationGroups: NotificationGroup[] = useMemo(() => {
-    if (!notificationsData) return [];
-
-    const groups: Record<string, INotification[]> = {
-      'New Followers': [],
-      'New Comments': [],
-      'New Articles': [],
-      'New Likes': []
-    };
-
-    notificationsData.forEach(notification => {
-      switch (notification.type) {
-        case 'follow':
-          groups['New Followers'].push(notification);
-          break;
-        case 'comment':
-          groups['New Comments'].push(notification);
-          break;
-        case 'article':
-          groups['New Articles'].push(notification);
-          break;
-        case 'like':
-          groups['New Likes'].push(notification);
-          break;
-      }
-    });
-
-    return Object.entries(groups)
-      .filter(([_, items]) => items.length > 0)
-      .map(([category, items]) => ({
-        category,
-        count: items.filter(item => !item.is_read).length,
-        items
-      }));
-  }, [notificationsData]);
-
   if (isLoading) return <BounceLoader />
+
+  // ===== Render Component =====
   return (
     <header className="relative border-gray-200 border-b">
       <div className="mx-auto max-w-[1600px]">
@@ -316,85 +204,11 @@ export default function Navbar() {
             {/* Bell icon e hover korle jei notification er dropdown ashbe sheitar part */}
             <AnimatePresence>
               {isNotificationDropDownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="top-12 right-0 z-40 absolute border-gray-200 bg-white shadow-lg border rounded-md w-80"
-                >
-                  <div className="py-2">
-                    {notificationGroups.map((group, index) => (
-                      <div key={index} className="relative">
-                        <div
-                          onClick={() => toggleCategory(group.category)}
-                          className="flex justify-between items-center hover:bg-gray-50 px-4 py-2 text-gray-700 text-sm cursor-pointer"
-                        >
-                          <p className="flex items-start">
-                            {group.category}
-                            {group.count > 0 && (
-                              <span className="inline-block bg-green-700 ml-2 rounded-full w-2 h-2"></span>
-                            )}
-                          </p>
-                          {expandedCategory === group.category ? (
-                            <X onClick={() => setIsNotificationDropDownOpen(false)} size={16} />
-                          ) : (
-                            <ArrowRight size={16} />
-                          )}
-                        </div>
-                        <AnimatePresence>
-                          {expandedCategory === group.category && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="overflow-hidden"
-                            >
-                              {group.items.map((notification) => (
-                                <a
-                                  key={notification.id}
-                                  href={notification.url_to}
-                                  onClick={async (e) => {
-                                    e.preventDefault();
-                                    // Mark as read
-                                    await fetch(`${base_url}/notifications/${notification.id}/read`, {
-                                      method: 'PUT',
-                                      headers: {
-                                        Authorization: `Bearer ${token}`
-                                      }
-                                    });
-                                    queryClient.invalidateQueries(['notifications']);
-                                    window.location.href = notification.url_to;
-                                  }}
-                                  className={`block px-4 py-3 text-sm border-l-4 ${
-                                    !notification.is_read
-                                      ? 'bg-blue-50 border-blue-500 hover:bg-blue-100'
-                                      : 'bg-white border-transparent hover:bg-blue-100'
-                                  } transition-colors duration-150`}
-                                >
-                                  <div className="flex items-start space-x-3">
-                                    <img
-                                      src={notification.sender.avatar || "/placeholder.svg"}
-                                      alt={notification.sender.name}
-                                      className="rounded-full w-8 h-8"
-                                    />
-                                    <div>
-                                      <span className="font-semibold">
-                                        {notification.sender.name}{' '}
-                                      </span>
-                                      <span className="text-gray-600">
-                                        {notification.content}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </a>
-                              ))}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
+                <Notification 
+                  isOpen={isNotificationDropDownOpen}
+                  onClose={() => setIsNotificationDropDownOpen(false)}
+                  notificationGroups={notificationGroups}
+                />
               )}
             </AnimatePresence>
             <motion.button
@@ -406,7 +220,7 @@ export default function Navbar() {
                 onClick={() => setIsNotificationDropDownOpen(!isNotificationDropDownOpen)}
                 className="w-5 h-5 text-gray-500"
               />
-              {notificationsData?.some(n => !n.is_read) && (
+              {notificationsData?.data && notificationsData.data.some(n => !n.is_read) && (
                 <span className="-top-1 -right-1 absolute bg-green-500 rounded-full w-2 h-2" />
               )}
             </motion.button>

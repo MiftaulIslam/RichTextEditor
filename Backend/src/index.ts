@@ -1,12 +1,10 @@
 import app from "./app";
 import {port} from "./app/config/config";
-
-import {Server} from 'http'
 import { dbcontext } from "./app/context/context";
-
+import { io, socketserver } from "./socket/socketServer";
 
 /* Server Config */
-const server:Server = app.listen(port||4000, () => {
+const server = socketserver.listen(port||4000, () => {
   console.log(`App Running on port ${port}`);
 });
 

@@ -17,23 +17,25 @@ export class Repository<T> implements IRepository<T> {
 
   async findMany(options?: any): Promise<T[]> {
     const entities = await this.model.findMany(options);
-    if(entities.length === 0){
+    if (entities.length === 0) {
       return [];
     }
     return entities;
   }
 
-  async findUnique(options: any): Promise<T | null> { return await this.model.findUnique(options);}
+  async findUnique(options: any): Promise<T | null> {
+    return await this.model.findUnique(options);
+  }
 
   async findById(id: number): Promise<T | null> {
     const entity = await this.model.findUnique({
-        where: { id },
-      });
-      if(!entity) throw new ErrorHandler("Entity not found", NOT_FOUND);
+      where: { id },
+    });
+    if (!entity) throw new ErrorHandler("Entity not found", NOT_FOUND);
     return entity;
   }
 
-  async create(data:any): Promise<T> {
+  async create(data: any): Promise<T> {
     return await this.model.create({ data });
   }
 
@@ -49,23 +51,39 @@ export class Repository<T> implements IRepository<T> {
   }
 
   async updateMany(
-    options: any, data: Partial<T>
+    options: any,
+    data: Partial<T>,
   ): Promise<Prisma.BatchPayload | null> {
     if (!options?.where) {
-      throw new Error("Invalid options: A filter condition is required to update multiple records.");
+      throw new Error(
+        "Invalid options: A filter condition is required to update multiple records.",
+      );
     }
 
-    return await this.model.updateMany({where:options.where, data});
+    return await this.model.updateMany({ where: options.where, data });
   }
 
   async delete(options: any): Promise<T | null> {
-    if (!options?.where || !options.where.id) {
-      throw new Error("Invalid options: ID is required to delete.");
-    }
+
 
     return await this.model.delete(options);
   }
   async deleteMany(options: any): Promise<Prisma.BatchPayload | null> {
     return await this.model.deleteMany(options);
+  }
+
+  async count(params: {
+    where?: any;
+    include?: any;
+  }): Promise<number> {
+    try {
+      const count = await this.model.count({
+        where: params.where,
+        include: params.include,
+      });
+      return count;
+    } catch (error) {
+      throw new Error(`Error counting ${this.model}: ${error}`);
+    }
   }
 }

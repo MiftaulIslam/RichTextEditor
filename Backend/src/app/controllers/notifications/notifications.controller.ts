@@ -1,3 +1,4 @@
+import { notifications } from './../../../../node_modules/.prisma/client/index.d';
 import { PrismaClient } from '@prisma/client';
 import { Repository } from "../../repository/implementation/Repository";
 import catchAsync from '../../utils/CatchAsyncError';
@@ -6,7 +7,7 @@ import sendResponse from '../../utils/SendResponse';
 import { OK } from '../../utils/Http-Status';
 
 const prisma = new PrismaClient();
-const _notificationsRepository = new Repository("notifications");
+const _notificationsRepository = new Repository<notifications>("notifications");
 
 const getNotifications = catchAsync(async (req: AuthenticatedRequest, res) => {
   const userId = req.id;

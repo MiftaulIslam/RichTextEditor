@@ -1,15 +1,22 @@
 import { io, Socket } from 'socket.io-client';
-import useTokenStore from '@/store/TokenStore';
 
-const socket: Socket = io('http://localhost:3000');
+const socket: Socket = io('http://localhost:8000', {
+  autoConnect: false,
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionAttempts: 5
+});
 
-// Join user's room when socket connects
 socket.on('connect', () => {
-    const token = useTokenStore((state) => state.token);
-  if (token) {
-    const userId = JSON.parse(atob(token.split('.')[1])).id;
-    socket.emit('join', userId);
-  }
+  console.log('Socket connected:', socket.id);
+});
+
+socket.on('connect_error', (error) => {
+  console.error('Socket connection error:', error);
+});
+
+socket.on('disconnect', (reason) => {
+  console.log('Socket disconnected:', reason);
 });
 
 export default socket;

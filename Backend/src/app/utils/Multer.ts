@@ -16,7 +16,6 @@ const upload: Multer = multer({
         const extname = filetypes.test(file.originalname.toLowerCase());
 
         if (mimetype && extname) {
-            console.log(file)
             return cb(null, true);
         }
         cb(new Error('Error: File type not supported!'));
