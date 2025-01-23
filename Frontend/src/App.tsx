@@ -1,12 +1,12 @@
 import { RouterProvider } from 'react-router-dom'
 import router from './routes/routes'
 import { useQuery } from '@tanstack/react-query';
-import BounceLoader from './Components/BounchLoader';
-import { IUserInfo } from './Interfaces/AuthInterfaces';
+  import BounceLoader from './Components/BounchLoader';
 import { useFetchQuery } from './hooks/useFetchQuery';
 import useTokenStore from './store/TokenStore';
 import { useEffect } from 'react';
 import socket from './socket/socketServer';
+import { IUserInfo } from './Interfaces/ResponseInterface';
 
 function App() {
   const token = useTokenStore((state) => state.token);

@@ -111,6 +111,17 @@ model notifications {
   @@index([sender_id], map: "sender_id")
 }
 
+model follows {
+  follower_id                     String    @db.Char(36)
+  following_id                    String    @db.Char(36)
+  created_at                      DateTime? @default(now()) @db.Timestamp(0)
+  User_follows_follower_idToUser  User      @relation("follows_follower_idToUser", fields: [follower_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "follows_ibfk_1")
+  User_follows_following_idToUser User      @relation("follows_following_idToUser", fields: [following_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "follows_ibfk_2")
+
+  @@id([follower_id, following_id])
+  @@index([following_id], map: "following_id")
+}
+
 enum notifications_type {
   follow
   comment

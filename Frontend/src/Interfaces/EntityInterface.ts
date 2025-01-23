@@ -39,13 +39,18 @@ created_at:string;
 }
 
   export interface IArticle{
-    User?:IUser;
+    User?:{
+      name:string;
+      domain:string|null;
+      avatar:string|null;
+    };
     likes?:ILike[];
     comments?:IComment[];
     author_id:string;
     content:string;
     created_at:string;
     id:string;
+    is_published:boolean;
     published_at:string | null;
     short_preview:string | null;
     slug:string|null;
@@ -53,7 +58,6 @@ created_at:string;
     title:string|null;
     updated_at:string|null;
     views:number;
-    pagination?:IPagination;
   }
 
   export interface IPagination{
@@ -63,10 +67,3 @@ created_at:string;
     pages:number;
   }
 
-  export interface IArticleResponse{
-    data:{articles:IArticle[];pagination:IPagination};
-    message:string;
-    statusCode:number;
-    success:boolean;
-
-  }

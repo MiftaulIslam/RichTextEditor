@@ -1,6 +1,6 @@
 // articles.controller.ts
 
-import { article_tags, articles, PrismaClient, tags } from "@prisma/client";
+import { article_tags, articles, PrismaClient, tags, User } from "@prisma/client";
 import { Repository } from "../../repository/implementation/Repository";
 import catchAsync from "../../utils/CatchAsyncError";
 import sendResponse from "../../utils/SendResponse";
@@ -9,6 +9,7 @@ import {
   OK,
   INTERNAL_SERVER_ERROR,
   BAD_REQUEST,
+  NOT_FOUND,
 } from "../../utils/Http-Status";
 import { v4 as uuidv4 } from "uuid";
 import { AuthenticatedRequest } from "../../middlewares/isAuthenticate";
@@ -19,14 +20,17 @@ const prisma = new PrismaClient();
 const _articlesRepository = new Repository<articles>("articles");
 const _tagsRepository = new Repository<tags>("tags");
 const _articleTagsRepository = new Repository<article_tags>("article_tags");
+const _userRepository = new Repository<User>("User");
+
 const getArticles = catchAsync(async (req: AuthenticatedRequest, res, next) => {
-  const { userId } = req.query; // Check for userId in the query params
+  const { userId } = req.query;
+  const isPublished = req.query.isPublished && JSON.parse(req.query.isPublished as string) ;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
   const skip = (page - 1) * limit;
 
   // Build the query dynamically based on the presence of userId
-  const query: any = userId ? { where: { author_id: userId } } : {};
+  const query: any = userId ? { where: { author_id: userId } } : {where: {is_published: isPublished}};
   query.include = {
     User: {
       select: {
@@ -172,6 +176,48 @@ const updateArticle = catchAsync(async (req, res, next) => {
   });
 });
 
+const getArticleBySlug = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+  const { domain, articleSlug } = req.params;
+console.log(articleSlug)
+  // Get user with their article in a single query
+  const userWithArticle = await _userRepository.findUnique({
+    where: { domain },
+    include: {
+      articles: {
+        where: {
+          slug:articleSlug,
+          is_published: true
+        },
+        include: {
+          likes: true,
+          comments: true
+        },
+      }
+    }
+  })as User & { articles: articles[]};
+
+  if (!userWithArticle) return next(new ErrorHandler("User not found", NOT_FOUND));
+  if (!userWithArticle.articles.length) return next(new ErrorHandler("Article not found", NOT_FOUND));
+
+  const article = userWithArticle.articles[0];
+  // console.log(userWithArticle.articles)
+
+  sendResponse(res, {
+    success: true,
+    statusCode: OK,
+    message: "Article retrieved successfully",
+    data: {
+      ...article,
+      User: {
+        name: userWithArticle.name,
+        avatar: userWithArticle.avatar,
+        domain: userWithArticle.domain,
+        short_bio: userWithArticle.short_bio
+      }
+    }
+  });
+});
+
 // const getUserArticles = catchAsync(async (req: AuthenticatedRequest, res, next) => {
 //   const { userId } = req.params;
 //   const page = parseInt(req.query.page as string) || 1;
@@ -219,4 +265,4 @@ const updateArticle = catchAsync(async (req, res, next) => {
 //   });
 // });
 
-export const ArticlesControllers = { getArticles, addArticle, updateArticle };
+export const ArticlesControllers = { getArticles, addArticle, updateArticle, getArticleBySlug };

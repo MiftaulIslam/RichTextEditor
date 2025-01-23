@@ -1,4 +1,4 @@
-import { IUser } from "@/Interfaces/AuthInterfaces"
+
 import ArrowRight from "@/widgets/Icons/ArrowRight"
 import ReusableModal from "@/widgets/ReusableFormModal"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -9,6 +9,7 @@ import { Link } from "react-router-dom"
 import BounceLoader from "../BounchLoader"
 import { useFetchQuery } from "@/hooks/useFetchQuery"
 import useTokenStore from "@/store/TokenStore"
+import { IUser } from "@/Interfaces/EntityInterface"
 
 const AccountSetting = () => {
 

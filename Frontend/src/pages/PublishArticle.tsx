@@ -1,7 +1,6 @@
 import BounceLoader from "@/Components/BounchLoader";
-import { useFetchQuery } from "@/hooks/useFetchQuery";
 import { useHttp } from "@/hooks/useHttp";
-import { IUser } from "@/Interfaces/AuthInterfaces";
+import { IUser } from "@/Interfaces/EntityInterface";
 import useTokenStore from "@/store/TokenStore";
 import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
@@ -14,25 +13,6 @@ interface FormData {
   short_preview: string;
   tags: string[];
   publishAt?: string;
-}
-interface article{
-  id:string;
-  author_id:string;
-  title:string;
-  content:string;
-  created_at:string;
-  is_published:boolean;
-  publishedAt: string|null;
-  slug:string;
-  thumbnail:string|null;
-  updated_at:string;
-  views:number;
-}
-interface articleResponse {
-message:string;
-statusCode:number;
-success:boolean;
-data: article;
 }
 const PublishArticle = () => {
   

@@ -1,7 +1,7 @@
 import BounceLoader from '@/Components/BounchLoader';
 import Logo from '@/Components/Logo';
 import { useHttp } from '@/hooks/useHttp';
-import { ILoginResponse } from '@/Interfaces/AuthInterfaces';
+import { ILoginResponse } from '@/Interfaces/ResponseInterface';
 import useTokenStore from '@/store/TokenStore';
 import { useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';

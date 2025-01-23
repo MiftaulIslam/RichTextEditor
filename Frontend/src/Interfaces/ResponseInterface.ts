@@ -1,5 +1,5 @@
 
-import { IFollow, IUser } from "./EntityInterface";
+import { IArticle,IPagination,  IFollow, IUser } from "./EntityInterface";
 
   
   
@@ -26,4 +26,13 @@ export interface IUserInfo{
     message:string;
     statusCode:number;
     data:IUser;
+}
+
+
+export interface IArticleResponse{
+  data:{articles:IArticle[];pagination?:IPagination};
+  message:string;
+  statusCode:number;
+  success:boolean;
+
 }

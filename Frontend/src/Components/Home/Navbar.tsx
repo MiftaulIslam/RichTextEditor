@@ -5,12 +5,12 @@ import { Link } from "react-router-dom"
 import Logo from "../Logo"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import BounceLoader from "../BounchLoader"
-import { IUser } from "@/Interfaces/AuthInterfaces"
 import Alert from "@/widgets/Icons/Alert"
 import socket from '@/socket/socketServer'
 import useTokenStore from "@/store/TokenStore"
 import { useFetchQuery } from "@/hooks/useFetchQuery"
 import Notification, { INotification, NotificationGroup } from "./Notification"
+import { IUser } from "@/Interfaces/EntityInterface"
 
 interface INotificationResponse {
   data: INotification[];

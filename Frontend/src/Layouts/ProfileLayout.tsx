@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import { Link, NavLink, Outlet, useParams } from "react-router-dom"
 import {Plus, User, Check} from "lucide-react"
-import TextLoader from "@/widgets/Icons/textLoader";
+import TextLoader from "@/widgets/Icons/TextLoader";
 import { IProfileResponse } from "@/Interfaces/ResponseInterface";
 import { IFollow, IUser } from "@/Interfaces/EntityInterface";
 

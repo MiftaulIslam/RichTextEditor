@@ -86,7 +86,6 @@ const getUsers = catchAsync(async (req, res, next) => {
   }
 });
 
-
 const updateAvatar:RequestHandler = catchAsync(async(req:AuthenticatedRequest, res, next)=>{
 
     const formData = new FormData();

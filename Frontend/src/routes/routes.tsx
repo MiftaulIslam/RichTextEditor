@@ -15,6 +15,7 @@ import TextEditor from "@/Layouts/TextEditor";
 import Login from "@/pages/Login";
 import PublishArticle from "@/pages/PublishArticle";
 import Signup from "@/pages/Signup";
+import Article from "@/pages/Article";
 
 import { createBrowserRouter } from 'react-router-dom';
 const router = createBrowserRouter([
@@ -89,7 +90,10 @@ const router = createBrowserRouter([
     path: "/signup",
     element: <Signup />,
   },
-
+  {
+    path: "/:domain/:slug",
+    element: <Article />
+  },
 ])
 
 

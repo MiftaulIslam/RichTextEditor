@@ -5,9 +5,10 @@ import { useFetchQuery } from "@/hooks/useFetchQuery";
 import useTokenStore from "@/store/TokenStore";
 import BounceLoader from "../BounchLoader";
 // import { format } from "date-fns";
-import TextLoader from "@/widgets/Icons/textLoader";
-import { IArticleResponse } from "@/Interfaces/EntityInterface";
+import TextLoader from "@/widgets/Icons/TextLoader";
+import { IArticle } from "@/Interfaces/EntityInterface";
 import { format } from 'date-fns';
+import { IArticleResponse } from "@/Interfaces/ResponseInterface";
 
 
 const Home = () => {
@@ -55,7 +56,7 @@ console.log(data)
         <div className="text-center text-gray-500">No articles found</div>
       ) : (
       <div className="space-y-8">
-        {data?.data.articles.map((article) => (
+        {data?.data.articles.map((article:IArticle) => (
           <article key={article.id} className="cursor-pointer" >
            <div className=" flex justify-between py-8 border-b border-gray-100 items-center gap-4 w-full">
            <div className="w-1/2 space-y-4">
