@@ -4,6 +4,10 @@ import { base_url } from "@/static/data";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
+
+// const { fetchRequest } = useFetchQuery()
+
+
 interface UseFetchQueryReturn<T> {
   fetchRequest: (url: string, method?: HttpMethod, body?: unknown, config?: AxiosRequestConfig) => Promise<T>;
 }

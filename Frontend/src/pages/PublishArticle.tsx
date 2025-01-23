@@ -1,5 +1,18 @@
+<<<<<<< Updated upstream
 import { X } from 'lucide-react'
 import React, { useRef, useState } from 'react'
+=======
+import BounceLoader from "@/Components/BounchLoader";
+import { useFetchQuery } from "@/hooks/useFetchQuery";
+import { useHttp } from "@/hooks/useHttp";
+import { IUser } from "@/Interfaces/AuthInterfaces";
+import useTokenStore from "@/store/TokenStore";
+import { useQuery } from "@tanstack/react-query";
+import { X } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+>>>>>>> Stashed changes
 
 const PublishArticle = () => {
     const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -9,6 +22,7 @@ const PublishArticle = () => {
     const [showSchedule, setShowSchedule] = useState(false)
     const [scheduleTime, setScheduleTime] = useState('')
   
+<<<<<<< Updated upstream
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0]
       if (file) {
@@ -18,6 +32,40 @@ const PublishArticle = () => {
         }
         reader.readAsDataURL(file)
       }
+=======
+  const { data: userInfo, isLoading } = useQuery<{ data: IUser }>({
+    queryKey: ['user'],
+    enabled: false,
+  });
+  const {articleId} = useParams();
+  const { register, handleSubmit, control, reset, watch } = useForm<FormData>({
+    defaultValues: {
+      title: "",
+      short_preview: "",
+      tags: ["React"],
+      publishAt: "",
+    },
+  });
+
+  // const { fetchRequest } = useFetchQuery<articleResponse>();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [newTopic, setNewTopic] = useState("");
+  const [showSchedule, setShowSchedule] = useState(false);
+  const topics = watch("tags");
+  const navigate = useNavigate()
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setImage(file);
+>>>>>>> Stashed changes
     }
   
     const handleRemoveImage = () => {
@@ -37,9 +85,32 @@ const PublishArticle = () => {
     const handleRemoveTopic = (topicToRemove: string) => {
       setTopics(topics.filter(topic => topic !== topicToRemove))
     }
+<<<<<<< Updated upstream
   
     return (
       <div className="max-w-4xl mx-auto p-6">
+=======
+  });
+
+  if(!image) alert("Article needs a thumbnail")
+  // If there's an image preview, convert it to a Blob and append
+  if (image) {
+    formData.append("thumbnail", image); // You can dynamically generate file names if needed
+  }
+
+  const headers = { Authorization: `Bearer ${token}` };
+  await sendRequest(`articles/p/${articleId}/e`, "PUT", formData, {headers});
+  navigate("/")
+    // await fetchRequest(`articles/p/${articleId}/e`, "PUT", formData, {headers})
+  };
+
+  if(loading||isLoading) return <BounceLoader/>
+
+  return (
+    <div className="mx-auto p-6 max-w-4xl">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Header */}
+>>>>>>> Stashed changes
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-xl font-semibold">Story Preview</h1>
           <div className="text-sm text-gray-600">

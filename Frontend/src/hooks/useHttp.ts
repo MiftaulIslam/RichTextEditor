@@ -4,6 +4,10 @@ import { base_url } from "@/static/data";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
+
+// const  {data, isLoading, isError, statusCode, sendRequest} = useHttp()
+
+
 interface UseHttpReturn<T> {
   data: T | null;
   loading: boolean;
