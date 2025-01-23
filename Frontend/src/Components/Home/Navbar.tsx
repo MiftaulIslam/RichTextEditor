@@ -37,7 +37,7 @@ export default function Navbar() {
   ]
 
   const dropdownItems = [
-    { label: "Profile", href: `/profile/${userInfo?.data.domain}` },
+    { label: "Profileeeeeeeeeeeeeeeeeeeeeeee", href: `/profile/${userInfo?.data.domain}` },
     { label: "Library", href: "/library" },
     { label: "Stories", href: "/stories" },
     { label: "Stats", href: "/stats" },
