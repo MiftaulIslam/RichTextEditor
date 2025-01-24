@@ -32,8 +32,13 @@ const router = createBrowserRouter([
         element: <TextEditor />,
       },
       {
-        path:"editor/publish/p/:articleId",
+        path: "editor/publish/p/:articleId",
         element: <PublishArticle />,
+      },
+
+      {
+        path: ":domain/:slug",
+        element: <Article />
       },
       {
         path: "profile/:domain",
@@ -41,15 +46,15 @@ const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: <Home/>,
+            element: <Home />,
           },
           {
             path: "about",
-            element: <About/>,
+            element: <About />,
           },
           {
             path: "lists",
-            element: <Lists/>,
+            element: <Lists />,
           },
         ]
       }, {
@@ -58,23 +63,23 @@ const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: <AccountSetting/>,
+            element: <AccountSetting />,
           },
           {
             path: "publishing-settings",
-            element: <PublishingSetting/>,
+            element: <PublishingSetting />,
           },
           {
             path: "notification-settings",
-            element: <NotificationSetting/>,
+            element: <NotificationSetting />,
           },
           {
             path: "membership-settings",
-            element: <MembershipAndPaymentSetting/>,
+            element: <MembershipAndPaymentSetting />,
           },
           {
             path: "security-settings",
-            element: <SecuritySetting/>,
+            element: <SecuritySetting />,
           },
         ]
       },
@@ -89,10 +94,6 @@ const router = createBrowserRouter([
   {
     path: "/signup",
     element: <Signup />,
-  },
-  {
-    path: "/:domain/:slug",
-    element: <Article />
   },
 ])
 

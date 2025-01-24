@@ -7,7 +7,6 @@ import sendResponse from "../../utils/SendResponse";
 import ErrorHandler from "../../utils/ErrorHandler";
 import {
   OK,
-  INTERNAL_SERVER_ERROR,
   BAD_REQUEST,
   NOT_FOUND,
 } from "../../utils/Http-Status";
@@ -71,7 +70,12 @@ const getArticles = catchAsync(async (req: AuthenticatedRequest, res, next) => {
   });
 });
 
-
+const calculateReadTime = (content: string) => {
+  const wordsPerMinute = 225; // average words per minute
+  const wordCount = content.split(/\s+/).length; // split content into words by spaces
+  const minutes = Math.ceil(wordCount / wordsPerMinute);
+  return minutes;
+};
 const addArticle = catchAsync(async (req: AuthenticatedRequest, res, next) => {
   const { content } = req.body;
   if (!content) return next(new ErrorHandler("Field missing", BAD_REQUEST));
@@ -81,6 +85,7 @@ const addArticle = catchAsync(async (req: AuthenticatedRequest, res, next) => {
     title: "Untitled-Article",
     slug: `Untitled-Article-${uuId}`,
     author_id: req.id,
+    estimate_reading_time: calculateReadTime(content),
     content,
   });
   sendResponse(res, {
@@ -177,92 +182,58 @@ const updateArticle = catchAsync(async (req, res, next) => {
 });
 
 const getArticleBySlug = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+  
   const { domain, articleSlug } = req.params;
+  const userId = req.query.u;
 console.log(articleSlug)
   // Get user with their article in a single query
   const userWithArticle = await _userRepository.findUnique({
     where: { domain },
     include: {
+      follows_follows_following_idToUser: {
+        include: {
+            User_follows_follower_idToUser: true,
+        },
+      },
       articles: {
         where: {
-          slug:articleSlug,
           is_published: true
         },
         include: {
+          User:true,
           likes: true,
           comments: true
         },
       }
     }
-  })as User & { articles: articles[]};
+  })as any;
 
   if (!userWithArticle) return next(new ErrorHandler("User not found", NOT_FOUND));
   if (!userWithArticle.articles.length) return next(new ErrorHandler("Article not found", NOT_FOUND));
 
-  const article = userWithArticle.articles[0];
-  // console.log(userWithArticle.articles)
-
+  const article = userWithArticle.articles.find((a:any) => a.slug === articleSlug);
+  const isFollowing = userWithArticle.follows_follows_following_idToUser.some((follow:any) => 
+    follow.User_follows_follower_idToUser.id == userId
+  );
+  const articles = userWithArticle.articles.filter((a:any) => a.slug != articleSlug)
+  console.log(isFollowing)
   sendResponse(res, {
     success: true,
     statusCode: OK,
     message: "Article retrieved successfully",
     data: {
       ...article,
+      isFollowing,
       User: {
+        id: userWithArticle.id,
         name: userWithArticle.name,
         avatar: userWithArticle.avatar,
         domain: userWithArticle.domain,
-        short_bio: userWithArticle.short_bio
+        short_bio: userWithArticle.short_bio,
+        articles: articles
       }
     }
   });
 });
-
-// const getUserArticles = catchAsync(async (req: AuthenticatedRequest, res, next) => {
-//   const { userId } = req.params;
-//   const page = parseInt(req.query.page as string) || 1;
-//   const limit = parseInt(req.query.limit as string) || 10;
-//   const skip = (page - 1) * limit;
-
-//   const articles = await _articlesRepository.findMany({
-//     where: { user_id: userId },
-//     include: {
-//       user: {
-//         select: {
-//           name: true,
-//           avatar: true,
-//           domain: true
-//         }
-//       },
-//       likes: true,
-//       comments: true,
-//       bookmarks: true
-//     },
-//     orderBy: {
-//       created_at: 'desc'
-//     },
-//     skip,
-//     take: limit
-//   });
-
-//   const totalArticles = await _articlesRepository.count({
-//     where: { user_id: userId }
-//   });
-
-//   sendResponse(res, {
-//     success: true,
-//     statusCode: OK,
-//     message: "User articles retrieved successfully",
-//     data: {
-//       articles,
-//       pagination: {
-//         total: totalArticles,
-//         page,
-//         pages: Math.ceil(totalArticles / limit),
-//         limit
-//       }
-//     }
-//   });
-// });
 
 export const ArticlesControllers = { getArticles, addArticle, updateArticle, getArticleBySlug };

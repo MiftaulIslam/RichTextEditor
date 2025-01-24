@@ -1,4 +1,5 @@
 
+import { ReactNode } from "react";
 import { IArticle,IPagination,  IFollow, IUser } from "./EntityInterface";
 
   
@@ -30,7 +31,9 @@ export interface IUserInfo{
 
 
 export interface IArticleResponse{
-  data:{articles:IArticle[];pagination?:IPagination};
+  data:{
+    title: ReactNode;articles:IArticle[];pagination?:IPagination
+};
   message:string;
   statusCode:number;
   success:boolean;

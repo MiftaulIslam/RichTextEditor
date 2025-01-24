@@ -34,6 +34,10 @@ export class Repository<T> implements IRepository<T> {
     if (!entity) throw new ErrorHandler("Entity not found", NOT_FOUND);
     return entity;
   }
+  async findOne(options: any): Promise<T | null> {
+    const entity = await this.model.findFirst(options);
+    return entity;
+  }
 
   async create(data: any): Promise<T> {
     return await this.model.create({ data });

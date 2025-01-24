@@ -29,40 +29,47 @@ const comments = [
       timeAgo: "1d ago",
     },
   ]
-  
-const ArticleCard = ({ article }: { article: IArticle }) => {
+const ArticleCardPositionVertical = ({ article }: { article: IArticle }) => {
+    
     const navigate = useNavigate()
   const [isCommentsOpen, setIsCommentsOpen] = useState(false)
     return (
-    <div className="max-w-2xl mx-auto cursor-pointer">
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="w-full cursor-pointer">
+      <div className="shadow rounded overflow-hidden">
         <div className="p-3">
-          <div className="flex items-center gap-2 mb-2" onClick={() => navigate(`/profile/${article.User?.domain}`)}>
+          <div className="flex flex-col items-start gap-2 mb-2" onClick={() => navigate(`/${article.User?.domain}/${article.slug}`)}>
+            {/* image */}
+          <div className="w-full overflow-hidden rounded">
+              <img
+                src={article.thumbnail as string}
+                alt={article.title as string}
+                
+                className="w-full h-full object-cover"
+              />
+            </div>            
+          <div className=" cursor-pointer space-y-2">
+            
+            {/* Profile */}
+            <div className="flex items-center gap-2">
+
             <div className="w-6 h-6 rounded-full overflow-hidden">
               <img
-                src={article.User?.avatar as string }
-                alt={article.User?.name as string}
+                src={article.User?.avatar || "/placeholder.svg"}
+                alt={article.User?.name}
                 className="w-full h-full object-cover"
               />
             </div>
             <span className="font-medium text-xs text-gray-500 hover:underline cursor-pointer">
               {article.User?.name}
             </span>
-          </div>
-          <div className="flex gap-4 items-start justify-between cursor-pointer" onClick={() => navigate(`/${article.User?.domain}/${article.slug}`)}>
+
+            </div>
             <div className="space-y-2">
               <h2 className="text-lg font-bold leading-tight tracking-tight">{article.title}</h2>
               <p className="text-gray-600 text-xs line-clamp-2">{article.short_preview}</p>
               
             </div>
-            <div className="w-1/4 overflow-hidden rounded">
-              <img
-                src={article.thumbnail || "/placeholder.svg"}
-                alt="Article thumbnail"
-                
-                className="w-full h-full object-cover"
-              />
-            </div>
+          </div>
           </div>
           <div className="flex items-center gap-3 text-xs text-gray-500">
                 <div className="flex items-center gap-1">
@@ -119,8 +126,7 @@ const ArticleCard = ({ article }: { article: IArticle }) => {
     )
 }
 
-export default ArticleCard
-
+export default ArticleCardPositionVertical
 
 
 

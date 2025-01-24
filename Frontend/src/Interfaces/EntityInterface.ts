@@ -11,7 +11,7 @@ export interface IUser{
         isBlacklisted:number;
         short_bio:string|null;
         createdAt:string;
-    
+        articles:IArticle[];
     
 }
 
@@ -39,11 +39,7 @@ created_at:string;
 }
 
   export interface IArticle{
-    User?:{
-      name:string;
-      domain:string|null;
-      avatar:string|null;
-    };
+    User?:IUser;
     likes?:ILike[];
     comments?:IComment[];
     author_id:string;
