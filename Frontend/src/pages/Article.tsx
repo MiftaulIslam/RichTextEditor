@@ -139,7 +139,7 @@ const Article = () => {
   const likeMutation = useMutation({
     mutationFn: async () => {
       return await fetchRequest(
-        `likes/article/${article?.data.id}/like?userId=${userInfo?.data.id}`,
+        `likes/article/${article?.data.id}/like?authorId=${article?.data.User.id}&authorDomain=${article?.data.User.domain}&articleSlug=${article?.data.slug}`,
         'POST',
         null,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -194,7 +194,7 @@ const Article = () => {
                   disabled={likeMutation.isPending}
                   className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors"
                 >
-                  <ThumbsUp size={20} className={isLiked ? "fill-blue-600 text-blue-600" : ""} />
+                  <ThumbsUp size={16} className={isLiked ? "text-blue-600" : ""} />
                   <span>{article?.data.likes?.length || 0}</span>
                 </button>
 

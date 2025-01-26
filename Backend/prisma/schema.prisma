@@ -21,6 +21,7 @@ model User {
   isPremium                                      Boolean?        @default(false)
   created_at                                     DateTime?       @default(now()) @db.Timestamp(0)
   articles                                       articles[]
+  comment_likes                                  comment_likes[]
   comments                                       comments[]
   follows_follows_follower_idToUser              follows[]       @relation("follows_follower_idToUser")
   follows_follows_following_idToUser             follows[]       @relation("follows_following_idToUser")
@@ -63,16 +64,21 @@ model articles {
 }
 
 model comments {
-  id         String    @id @db.Char(36)
-  article_id String    @db.Char(36)
-  author_id  String    @db.Char(36)
-  content    String    @db.Text
-  created_at DateTime? @default(now()) @db.Timestamp(0)
-  articles   articles  @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_1")
-  User       User      @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_2")
+  id             String          @id @db.Char(36)
+  article_id     String          @db.Char(36)
+  author_id      String          @db.Char(36)
+  content        String          @db.Text
+  created_at     DateTime?       @default(now()) @db.Timestamp(0)
+  parent_id      String?         @db.Char(36)
+  comment_likes  comment_likes[]
+  comments       comments?       @relation("commentsTocomments", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_comments_parent_id")
+  other_comments comments[]      @relation("commentsTocomments")
+  articles       articles        @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_1")
+  User           User            @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_2")
 
   @@index([article_id], map: "article_id")
   @@index([author_id], map: "author_id")
+  @@index([parent_id], map: "idx_comments_parent_id")
 }
 
 model likes {
@@ -121,6 +127,18 @@ model follows {
 
   @@id([follower_id, following_id])
   @@index([following_id], map: "following_id")
+}
+
+model comment_likes {
+  id         String    @id @db.Char(36)
+  comment_id String    @db.Char(36)
+  user_id    String    @db.Char(36)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  comments   comments  @relation(fields: [comment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_likes_ibfk_1")
+  User       User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_likes_ibfk_2")
+
+  @@index([comment_id], map: "idx_comment_id")
+  @@index([user_id], map: "idx_user_id")
 }
 
 enum notifications_type {

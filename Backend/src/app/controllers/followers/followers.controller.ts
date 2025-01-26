@@ -54,10 +54,8 @@ const followUser = catchAsync(async (req: AuthenticatedRequest, res, next) => {
 
   // Get recipient's socket ID and emit notification
   const recipientSocketId = userSocketMap.get(followingId);
-  console.log(recipientSocketId)
   if (recipientSocketId) {
     io.to(recipientSocketId).emit('new-notification', notification);
-    console.log(recipientSocketId)
   }
 
   return sendResponse(res, {

@@ -185,7 +185,6 @@ const getArticleBySlug = catchAsync(async (req: AuthenticatedRequest, res, next)
   
   const { domain, articleSlug } = req.params;
   const userId = req.query.u;
-console.log(articleSlug)
   // Get user with their article in a single query
   const userWithArticle = await _userRepository.findUnique({
     where: { domain },
@@ -216,7 +215,6 @@ console.log(articleSlug)
     follow.User_follows_follower_idToUser.id == userId
   );
   const articles = userWithArticle.articles.filter((a:any) => a.slug != articleSlug)
-  console.log(isFollowing)
   sendResponse(res, {
     success: true,
     statusCode: OK,
