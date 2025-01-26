@@ -127,7 +127,7 @@ const AccountSetting = () => {
   return (
     <div>
       <div className="space-y-8">
-        <motion.div whileHover={{ scale: 1.01 }} className="cursor-pointer flex justify-between items-center"
+        <motion.div whileHover={{ scale: 1.01 }} className="flex justify-between items-center cursor-pointer"
           onClick={() => setIsEmailModalOpen(true)}>
 
           <h2 className="font-medium">Email address</h2>
@@ -138,7 +138,7 @@ const AccountSetting = () => {
           </div>
         </motion.div>
 
-        <motion.div whileHover={{ scale: 1.01 }} className="cursor-pointer flex justify-between items-center">
+        <motion.div whileHover={{ scale: 1.01 }} className="flex justify-between items-center cursor-pointer">
 
           <h2 className="font-medium">Domain</h2>
           <div className="flex items-center gap-1">
@@ -155,14 +155,14 @@ const AccountSetting = () => {
         >
           <div>
             <h2 className="font-medium">Profile information</h2>
-            <p className="text-gray-600">Edit your photo, name, pronouns, short bio, etc.</p>
+            <p className="text-gray-600">Edit your photo, name, short bio, etc.</p>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-gray-600">{userInfo?.data.name}</span>
             <img
               src={userInfo?.data.avatar || "/placeholder.svg"}
               alt="Profile"
-              className="w-8 h-8 rounded-full"
+              className="rounded-full w-8 h-8"
             />
             {/* arrow right */}
             <ArrowRight classname="w-4 h-4" />
@@ -180,7 +180,7 @@ const AccountSetting = () => {
           </Link>
         </motion.div>
 
-        <div className="cursor-pointer flex justify-between items-center">
+        <div className="flex justify-between items-center cursor-pointer">
           <div>
             <h2 className="font-medium">Custom domain</h2>
             <p className="text-gray-600">
@@ -217,7 +217,7 @@ const AccountSetting = () => {
           <button className="text-red-500 hover:text-red-600">
             Deactivate account
           </button>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="mt-1 text-gray-500 text-sm">
             Deactivating will suspend your account until you sign back in.
           </p>
         </div>
@@ -241,7 +241,7 @@ const AccountSetting = () => {
               type="text"
               id="name"
               {...emailRegisterMethods.register('email', { required: true })}
-              className="w-full p-2 border rounded bg-gray-50"
+              className="bg-gray-50 p-2 border rounded w-full"
             />
           </div>
 
@@ -266,10 +266,10 @@ const AccountSetting = () => {
               <img
                 src={userInfo?.data.avatar || ''}
                 alt="Profile"
-                className="w-20 h-20 rounded-full object-cover"
+                className="rounded-full w-20 h-20 object-cover"
               />
               <div>
-                <button type="button" onClick={() => document.getElementById("file-input")?.click()} className="text-green-600 hover:text-green-700 mr-4">
+                <button type="button" onClick={() => document.getElementById("file-input")?.click()} className="mr-4 text-green-600 hover:text-green-700">
                   Update
                 </button>
                 <button type="button" className="text-red-500 hover:text-red-600">
@@ -282,7 +282,7 @@ const AccountSetting = () => {
                   onChange={handleImageSubmit}
                   accept="image/*"
                 />
-                <p className="text-gray-500 text-sm mt-2">
+                <p className="mt-2 text-gray-500 text-sm">
                   Recommended: Square JPG, PNG, or GIF, at least 1,000 pixels per side.
                 </p>
               </div>
@@ -297,9 +297,9 @@ const AccountSetting = () => {
               type="text"
               id="name"
               {...profileRegisterMethods.register('name', { required: true, maxLength: 50 })}
-              className="w-full p-2 border rounded bg-gray-50"
+              className="bg-gray-50 p-2 border rounded w-full"
             />
-            <div className="text-right text-sm text-gray-500 mt-1">
+            <div className="text-right mt-1 text-gray-500 text-sm">
               {watchName.length}/50
             </div>
           </div>
@@ -310,14 +310,14 @@ const AccountSetting = () => {
             <textarea
               id="shortBio"
               {...profileRegisterMethods.register('short_bio', { maxLength: 160 })}
-              className="w-full p-2 border rounded bg-gray-50 h-24 resize-none"
+              className="bg-gray-50 p-2 border rounded w-full h-24 resize-none"
             />
-            <div className="text-right text-sm text-gray-500 mt-1">
+            <div className="text-right mt-1 text-gray-500 text-sm">
               {watchShortBio.length}/160
             </div>
           </div>
           {/* Footer */}
-          <div className="flex justify-between items-center cursor-pointer hover:bg-gray-50 p-2 rounded">
+          <div className="flex justify-between items-center hover:bg-gray-50 p-2 rounded cursor-pointer">
             <div>
               <h3 className="font-medium">About Page</h3>
               <p className="text-gray-600 text-sm">
