@@ -98,7 +98,7 @@ const getComments = catchAsync(async (req: AuthenticatedRequest, res) => {
       },
       comment_likes: true
     },
-    orderBy: { created_at: 'asc' }
+      orderBy: { created_at: 'desc' }
   });
 
   sendResponse(res, {

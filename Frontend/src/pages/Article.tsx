@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { IArticle, IComment, ILike, IUser } from '@/Interfaces/EntityInterface';
 import { format } from 'date-fns';
-import { MessageCircle, ThumbsUp,  MoreVertical } from 'lucide-react';
+import { MessageCircle, ThumbsUp, MoreVertical } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/Components/ui/sheet';
@@ -14,6 +14,10 @@ import { ScrollArea } from '@/Components/ui/scroll-area';
 import ArticleCardPositionVertical from '@/Components/Article/ArticleCardPositionVertical';
 import { useForm } from 'react-hook-form';
 import { Skeleton } from '@/Components/ui/skeleton';
+import { useCommentMutations } from '@/Components/Article/ArticlePage/hooks/useCommentMutations';
+import { useFollowMutations } from '@/Components/Article/ArticlePage/hooks/useFollowMutations';
+import { useUserInfo } from '@/hooks/useUserInfo';
+import { useArticleQueries } from '@/Components/Article/ArticlePage/hooks/useArticleQueries';
 
 
 interface IArticleWithUser {
@@ -49,23 +53,17 @@ interface ReplyForm {
 
 const Article = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { domain, slug } = useParams();
   const token = useTokenStore((state) => state.token);
   const { fetchRequest } = useFetchQuery();
-  
+
   const [isLiked, setIsLiked] = useState(false);
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [showComments, setShowComments] = useState(false);
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
 
   const { register: registerComment, handleSubmit: handleSubmitComment, reset: resetComment } = useForm<CommentForm>();
   const { register: registerReply, handleSubmit: handleSubmitReply, reset: resetReply } = useForm<ReplyForm>();
-  //Logged in user info
-  const { data: userInfo } = useQuery<{ data: IUser }>({
-    queryKey: ['user'],
-    enabled: !!token,
-  });
+  //logged in user info
+  const userInfo = useUserInfo();
   //Article info
   const { data: article, isLoading } = useQuery<ArticleResponse>({
     queryKey: ['article', domain, slug],
@@ -80,66 +78,12 @@ const Article = () => {
   });
 
   //Following state
-  const [following, setFollowing] = useState(!isLoading && article?.data.isFollowing );
-  const [commentsLength, setCommentsLength] = useState(!isLoading && article?.data.comments.length);
- 
-  //Follow/Unfollow mutations
-  const handleFollow = async () => {
+  const [following, setFollowing] = useState(!isLoading && article?.data.isFollowing);
 
-    setFollowing(true);
-    const response = await fetchRequest(`followers/${article?.data.User.id}/follow`, 'POST', null, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    return response;
-  }
-  const handleUnfollow = async () => {
-
-    setFollowing(false);
-    const response = await fetchRequest(`followers/${article?.data.User.id}/unfollow`, 'DELETE', null, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    return response;
-  }
-  // Add follow/unfollow mutations
-  const followMutation = useMutation({
-    mutationFn: handleFollow,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['article', domain, slug] });
-    }
-  });
-
-  const unfollowMutation = useMutation({
-    mutationFn: handleUnfollow,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['article', domain, slug] });
-    }
-  });
-
-  //Follow/Unfollow toggle
-  const handleFollowToggle = async () => {
-    
-    if (following) {
-      await unfollowMutation.mutateAsync();
-    } else {
-      await followMutation.mutateAsync();
-    }
-  };
-
-  // article Like mutation
-  const likeMutation = useMutation({
-    mutationFn: async () => {
-      return await fetchRequest(
-        `likes/article/${article?.data.id}/like?authorId=${article?.data.User.id}&authorDomain=${article?.data.User.domain}&articleSlug=${article?.data.slug}`,
-        'POST',
-        null,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    },
-    onSuccess: () => {
-      setIsLiked(!isLiked);
-      queryClient.invalidateQueries({ queryKey: ['article', domain, slug] });
-    }
-  });
+  //Follow/unfollow mutations
+  const { followMutation, unfollowMutation } = useFollowMutations(domain, slug, setFollowing, article?.data.User.id);
+  //Article queries
+  const { likeMutation, commentsData, isCommentsLoading } = useArticleQueries(setIsLiked, isLiked, article?.data);
 
   // article Like
   const handleLike = async () => {
@@ -149,38 +93,19 @@ const Article = () => {
     }
     await likeMutation.mutateAsync();
   };
-
-  // Get comments
-  const { data: commentsData, isLoading: isCommentsLoading } = useQuery<{ data: Comment[] }>({
-    queryKey: ['comments', article?.data.id],
-    queryFn: async () => {
-      return await fetchRequest(
-        `comments/${article?.data.id}`,
-        'GET',
-        null,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    },
-    enabled: !!article?.data.id 
-  });
-  // Add comment mutation
-  const commentMutation = useMutation({
-    mutationFn: async ({ content, parentId }: { content: string, parentId?: string }) => {
-      return await fetchRequest(
-        `${parentId ? `comments?parentId=${parentId}` : 'comments'}`,
-        'POST',
-        {
-          articleId: article?.data.id,
-          content
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments', article?.data.id] });
-      setCommentsLength((prevLength) => (prevLength || 0) + 1);
+  //Follow/Unfollow toggle
+  const handleFollowToggle = async () => {
+    if (following) {
+      await unfollowMutation.mutateAsync();
+    } else {
+      await followMutation.mutateAsync();
     }
-  });
+  };
+  //comment mutations
+  const {
+    likeCommentMutation,
+    commentMutation
+  } = useCommentMutations(article?.data.id);
 
   // Submit comment
   const onSubmitComment = async (data: CommentForm) => {
@@ -197,28 +122,14 @@ const Article = () => {
       navigate('/login');
       return;
     }
-    await commentMutation.mutateAsync({ 
+    await commentMutation.mutateAsync({
       content: data.content,
-      parentId 
+      parentId
     });
     resetReply();
     setActiveReplyId(null);
   };
 
-  // Like comment mutation
-  const likeCommentMutation = useMutation({
-    mutationFn: async (commentId: string) => {
-      return await fetchRequest(
-        `comments/${commentId}/like`,
-        'POST',
-        null,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments', article?.data.id] });
-    }
-  });
 
   const handleLikeComment = async (commentId: string) => {
     if (!token) {
@@ -234,8 +145,7 @@ const Article = () => {
 
   useEffect(() => {
     setFollowing(article?.data.isFollowing);
-    setCommentsLength(article?.data.comments.length);
-  }, [article?.data.comments.length, article?.data.isFollowing, isLoading])
+  }, [commentsData, article?.data.isFollowing, isLoading])
   console.log(commentsData)
   if (isLoading) return <BounceLoader />;
   if (!article?.data) return <div className="text-center py-8">Article not found</div>;
@@ -279,12 +189,12 @@ const Article = () => {
 
                 <a href='#comments-preview' className="flex items-center gap-1 text-gray-500 hover:text-gray-700">
                   <MessageCircle size={16} />
-                  <span className='text-sm'>{commentsLength}</span>
+                  <span className='text-sm'>{commentsData?.data.length || '...'}</span>
                 </a>
               </p>
 
               <p className="text-gray-500 text-xs font-normal space-x-2">
-                <span className='text-gray-500'>{article?.data.estimated_reading_time ? `${article?.data.estimated_reading_time} min read`:Math.floor(article?.data.content.split(' ').length / 250)} min read</span>
+                <span className='text-gray-500'>{article?.data.estimated_reading_time ? `${article?.data.estimated_reading_time} min read` : Math.floor(article?.data.content.split(' ').length / 250)} min read</span>
                 <span className='text-gray-500'>·</span>
                 <span className='text-gray-500'>{format(new Date(article?.data?.created_at), 'MMM dd, yyyy')}</span>
               </p>
@@ -293,7 +203,7 @@ const Article = () => {
         </div>
       </header>
 
-      <hr className='my-4'/>
+      <hr className='my-4' />
 
 
 
@@ -307,22 +217,21 @@ const Article = () => {
       {/* Comments Section */}
       <section className="mt-8 border-t pt-8" id='comments-preview'>
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold">Responses ({commentsLength})</h3>
-
+          <h3 className="text-xl font-semibold">Responses ({commentsData?.data.length || 0})</h3>
         </div>
 
         {/* Comment Input */}
         <div className="flex items-start gap-3 mb-8">
-          <Avatar className="w-8 h-8">
+          <Avatar className="w-6 h-6">
             <AvatarImage src={userInfo?.data.avatar || "/placeholder.svg"} />
             <AvatarFallback>{userInfo?.data.name}</AvatarFallback>
           </Avatar>
           <form className="flex-1" onSubmit={handleSubmitComment(onSubmitComment)}>
             <textarea
-            
-            {...registerComment('content', { required: true })}
+
+              {...registerComment('content', { required: true })}
               placeholder="What are your thoughts?"
-              className="w-full min-h-[100px] p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-gray-200"
+              className="w-full min-h-[100px] p-3 border rounded resize-none focus:outline-none shadow text-sm text-gray-500"
             />
             <button type='submit' className="mt-2 bg-green-500 text-white px-4 py-2 rounded text-xs font-medium">
               Comment
@@ -341,34 +250,34 @@ const Article = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className="flex gap-3"
               >
-                <Avatar className="w-8 h-8">
+                <Avatar className="w-6 h-6">
                   <AvatarImage src={comment.User?.avatar || "/placeholder.svg"} />
                   <AvatarFallback>{comment.User?.name}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{comment.User?.name}</span>
-                      <span className="text-sm text-gray-500">{format(new Date(comment.created_at), 'MMM dd, yyyy')}</span>
+                      <span className="font-semibold text-sm">{comment.User?.name}</span>
+                      <span className="text-xs text-gray-500">{format(new Date(comment.created_at), 'MMM dd, yyyy')}</span>
                     </div>
                     <button>
-                     <MoreVertical size={16}/>
+                      <MoreVertical size={16} />
                     </button>
                   </div>
-                  <p className="mt-1 text-gray-700">{comment.content}</p>
-                  <div className="flex gap-4 mt-2">
-                    <button 
+                  <p className="mt-1 text-xs text-gray-700">{comment.content}</p>
+                  <div className="flex items-center gap-1 mt-2">
+                    <button
                       onClick={() => handleLikeComment(comment.id)}
                       className="text-gray-500 flex items-center gap-1"
                     >
-                      <ThumbsUp size={16} className="mr-1"/>
-                      <span className='text-sm'>{comment.comment_likes.length}</span>
+                      <span className='text-xs flex items-center gap-1'><ThumbsUp size={14} className='mb-1'/>{comment.comment_likes.length}</span>
                     </button>
-                    <button 
-                      onClick={() => handleReplyClick(comment.id)} 
+                    <span className='text-gray-500'>·</span>
+                    <button
+                      onClick={() => handleReplyClick(comment.id)}
                       className="text-gray-500 text-xs hover:underline"
                     >
-                      {activeReplyId === comment.id ? 'Hide Replies' : `${comment.other_comments.length} Replies`}
+                      {activeReplyId === comment.id ? 'Hide Replies' : `Replies (${comment.other_comments.length})`}
                     </button>
                   </div>
 
@@ -380,11 +289,11 @@ const Article = () => {
                         <textarea
                           {...registerReply('content', { required: true })}
                           placeholder={`Reply to ${comment.User?.name}...`}
-                          className="w-full p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-gray-200"
+                          className="w-full p-3 border rounded resize-none focus:outline-none shadow text-sm text-gray-500"
                           rows={2}
                         />
-                        <button 
-                          type="submit" 
+                        <button
+                          type="submit"
                           className="mt-2 bg-green-500 text-white px-4 py-2 rounded text-xs font-medium"
                           disabled={commentMutation.isPending}
                         >
@@ -401,13 +310,13 @@ const Article = () => {
                               alt={reply.User.name}
                               className="w-6 h-6 rounded-full"
                             />
-                            <span className="font-medium text-sm">{reply.User.name}</span>
+                            <span className="font-semibold text-sm">{reply.User.name}</span>
                             <span className="text-gray-500 text-xs">
                               {format(new Date(reply.created_at), 'MMM dd, yyyy')}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-700">{reply.content}</p>
-                          <button 
+                          <p className="text-xs text-gray-700">{reply.content}</p>
+                          <button
                             onClick={() => handleLikeComment(reply.id)}
                             className="mt-2 text-gray-500 flex items-center gap-1"
                           >
@@ -436,121 +345,96 @@ const Article = () => {
         <Sheet>
           <SheetTrigger asChild>
             <button className="mt-6 bg-green-500 text-white px-4 py-2 rounded text-xs font-medium">
-                See all responses ({commentsLength})
-              </button>
+              See all responses ({commentsData?.data.length})
+            </button>
           </SheetTrigger>
           <SheetContent side="right" className="w-full sm:w-[500px]">
             <SheetHeader>
-              <SheetTitle>All Responses ({commentsLength})</SheetTitle>
+              <SheetTitle>All Responses ({commentsData?.data.length})</SheetTitle>
             </SheetHeader>
             <ScrollArea className="h-[calc(100vh-8rem)] mt-6">
               <div className="space-y-6 pr-4">
-                {commentsData?.data.slice(2,commentsData?.data.length).map((comment) => (
+                {commentsData?.data.map((comment) => (
                   <motion.div
                     key={comment.id}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="flex gap-3"
                   >
-                    <Avatar className="w-8 h-8">
+                    <Avatar className="w-6 h-6">
                       <AvatarImage src={comment.User?.avatar || "/placeholder.svg"} />
                       <AvatarFallback>{comment.User?.name}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium">{comment.User?.name}</span>
-                          <span className="text-sm text-gray-500">{format(new Date(comment.created_at), 'MMM dd, yyyy')}</span>
+                          <span className="font-semibold text-sm">{comment.User?.name}</span>
+                          <span className="text-xs text-gray-500">{format(new Date(comment.created_at), 'MMM dd, yyyy')}</span>
                         </div>
                         <button   >
-                          <MoreVertical size={16}/>
-                              
+                          <MoreVertical size={16} />
+
                         </button>
                       </div>
-                      <p className="mt-1 text-gray-700">{comment.content}</p>
+                      <p className="mt-1 text-xs text-gray-700">{comment.content}</p>
                       <div className="flex items-center gap-4 mt-2">
                         <button className="text-gray-500 ">
-                          <span className="text-sm flex items-center gap-1">
-                          <ThumbsUp size={16} className="mr-1"/>{comment.comment_likes.length} </span>
+                          <span className="text-xs flex items-center gap-1">
+                            <ThumbsUp size={16} className="mr-1" />{comment.comment_likes.length} </span>
                         </button>
-                        <button onClick={() => handleReplyClick(comment.id)} className="text-gray-500 text-xs hover:underline">
-                          Reply
+                        <button
+                          onClick={() => handleReplyClick(comment.id)}
+                          className="text-gray-500 text-xs hover:underline"
+                        >
+                          {activeReplyId === comment.id ? 'Hide Replies' : `${comment.other_comments.length} Replies`}
                         </button>
                       </div>
-
-                  {/* Reply Form */}
+                  {/* Replies Section - Only visible when activeReplyId matches */}
                   {activeReplyId === comment.id && (
-                    <div className="mt-4 ml-8">
+                    <div className="mt-4 ml-8 space-y-4">
+                      {/* Reply Form */}
                       <form onSubmit={handleSubmitReply((data) => onSubmitReply(data, comment.id))}>
-                        <div className="flex gap-3">
-                          <Avatar className="w-8 h-8">
-                            <AvatarImage src={userInfo?.data.avatar || "/placeholder.svg"} />
-                            <AvatarFallback>{userInfo?.data.name}</AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <textarea
-                              {...registerReply('content', { required: true })}
-                              placeholder={`Replying to ${comment.User?.name}...`}
-                              className="w-full p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-gray-200"
-                              rows={2}
-                            />
-                            <div className="mt-2 flex gap-2">
-                              <button 
-                                type="submit" 
-                                className="bg-green-500 text-white px-4 py-2 rounded text-xs font-medium"
-                                disabled={commentMutation.isPending}
-                              >
-                                {commentMutation.isPending ? 'Sending...' : 'Reply'}
-                              </button>
-                              <button 
-                                type="button"
-                                onClick={() => setActiveReplyId(null)}
-                                className="text-gray-500 px-4 py-2 rounded text-xs font-medium"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+                        <textarea
+                          {...registerReply('content', { required: true })}
+                          placeholder={`Reply to ${comment.User?.name}...`}
+                          className="w-full p-3 border rounded resize-none focus:outline-none shadow text-sm text-gray-500"
+                          rows={2}
+                        />
+                        <button
+                          type="submit"
+                          className="mt-2 bg-green-500 text-white px-4 py-2 rounded text-xs font-medium"
+                          disabled={commentMutation.isPending}
+                        >
+                          {commentMutation.isPending ? 'Sending...' : 'Reply'}
+                        </button>
                       </form>
+
+                      {/* Existing Replies */}
+                      {comment.other_comments.map((reply) => (
+                        <div key={reply.id} className="border-l-2 pl-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <img
+                              src={reply.User.avatar || "/placeholder.svg"}
+                              alt={reply.User.name}
+                              className="w-6 h-6 rounded-full"
+                            />
+                            <span className="font-medium text-sm">{reply.User.name}</span>
+                            <span className="text-gray-500 text-xs">
+                              {format(new Date(reply.created_at), 'MMM dd, yyyy')}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-700">{reply.content}</p>
+                          <button
+                            onClick={() => handleLikeComment(reply.id)}
+                            className="mt-2 text-gray-500 flex items-center gap-1"
+                          >
+                            <ThumbsUp size={14} />
+                            <span className="text-xs">{reply.comment_likes.length}</span>
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   )}
-
-                      {/* Nested Replies in Sheet */}
-                      {comment.replies?.map((reply) => (
-                        <motion.div
-                          key={reply.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="flex gap-3 mt-4 ml-8"
-                        >
-                          <Avatar className="w-8 h-8">
-                            <AvatarImage src={reply.User.avatar} />
-                            <AvatarFallback>{reply.User.name}</AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">{reply.author}</span>
-                                <span className="text-sm text-gray-500">{reply.date}</span>
-                              </div>
-                              <button   >
-                                <MoreVertical size={16}/>
-                              </button>
-                            </div>
-                            <p className="mt-1 text-gray-700">{reply.content}</p>
-                            <div className="flex items-center gap-4 mt-2">
-                              <button className="text-gray-500">
-                                <ThumbsUp size={16}/>
-                                {reply.comment_likes.length}
-                              </button>
-                              <button className="text-gray-500">
-                                Reply
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
                     </div>
                   </motion.div>
                 ))}
@@ -587,7 +471,7 @@ const Article = () => {
         </div>
       </section>
 
-    
+
     </article>
   )
 }
