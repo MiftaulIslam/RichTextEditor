@@ -4,6 +4,7 @@ import { ArticlesRoutes } from '../controllers/articles/articles.route';
 import { FollowersRoutes } from '../controllers/followers/followers.route';
 import { NotificationsRoutes } from '../controllers/notifications/notifications.route';
 import { LikesRoutes } from '../controllers/likes/likes.route';
+import { CommentsRoutes } from '../controllers/comments/comments.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -25,6 +26,10 @@ const moduleRoutes = [
   {
     path: '/notifications',
     route: NotificationsRoutes,
+  },
+  {
+    path: '/comments',
+    route: CommentsRoutes,
   },
 ];
 

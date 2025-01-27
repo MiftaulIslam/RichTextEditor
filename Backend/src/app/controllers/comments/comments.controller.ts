@@ -1,0 +1,181 @@
+// comments.controller.ts
+
+import { articles, comment_likes, comments, notifications, PrismaClient, User } from "@prisma/client";
+import { Repository } from "../../repository/implementation/Repository";
+import catchAsync from "../../utils/CatchAsyncError";
+import { v4 as uuidv4 } from "uuid";
+import sendResponse from "../../utils/SendResponse";
+import { OK, NOT_FOUND, UNAUTHORIZED } from "../../utils/Http-Status";
+import { AuthenticatedRequest } from "../../middlewares/isAuthenticate";
+import { io, userSocketMap } from '../../../socket/socketServer';
+import ErrorHandler from "../../utils/ErrorHandler";
+
+const prisma = new PrismaClient();
+const _commentsRepository = new Repository<comments>("comments");
+const _notificationsRepository = new Repository<notifications>("notifications");
+const _articlesRepository = new Repository<articles>("articles");
+const _usersRepository = new Repository<User>("User");
+const _commentLikesRepository = new Repository<comment_likes>("comment_likes");
+const createComment = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+  const { articleId, content } = req.body;
+  const authorId = req.id; 
+  const parentId = req.query.parentId;
+
+  const comment = await _commentsRepository.create({
+    id: uuidv4(),
+    article_id: articleId,
+    author_id: authorId,
+    content,
+    parent_id: parentId || null,
+  });
+
+  // Create notification for article author
+  const article = await _articlesRepository.findUnique({
+    where: { id: articleId },
+    select: { author_id: true, title: true, slug: true, User: { select: { domain: true } } }
+  });
+
+  if (!article) return next(new ErrorHandler("Article not found", NOT_FOUND));
+
+  // Don't notify if commenter is article author
+  if (authorId !== article.author_id) {
+    const notification = await _notificationsRepository.create({
+      id: uuidv4(),
+      recipient_id: article.author_id,
+      sender_id: authorId,
+      type: 'comment',
+      title: 'New Comment',
+      content: `commented on your article "${article.title}"`,
+      url_to: `/${article.User.domain}/${article.slug}`,
+      is_read: false,
+      highlight: true
+    });
+
+    // Send real-time notification
+    const recipientSocketId = userSocketMap.get(article.author_id);
+    if (recipientSocketId) {
+      io.to(recipientSocketId).emit('new-notification', notification);
+    }
+  }
+
+  sendResponse(res, {
+    success: true,
+    message: 'Comment created successfully',
+    statusCode: OK,
+    data: comment
+  });
+});
+
+// Fetch all comments and replies for an article
+const getComments = catchAsync(async (req: AuthenticatedRequest, res) => {
+  const { articleId } = req.params;
+
+  const comments = await _commentsRepository.findMany({
+    where: { 
+      article_id: articleId, 
+      parent_id: null // Get top-level comments
+    },
+    include: {
+      User: {
+        select: {
+          name: true,
+          avatar: true,
+          domain: true
+        }
+      },
+      other_comments: { // This is the correct relation name from your schema
+        include: {
+          User: {
+            select: {
+              name: true,
+              avatar: true,
+              domain: true
+            }
+          },
+          comment_likes: true
+        },
+        orderBy: { created_at: 'asc' }
+      },
+      comment_likes: true
+    },
+    orderBy: { created_at: 'asc' }
+  });
+
+  sendResponse(res, {
+    success: true,
+    message: 'Comments fetched successfully',
+    statusCode: OK,
+    data: comments
+  });
+});
+
+const toggleCommentLike = catchAsync(async (req: AuthenticatedRequest, res) => {
+  const { commentId } = req.params;
+  const userId = req.id;
+
+  const existingLike = await _commentLikesRepository.findOne({
+    where: {
+      comment_id: commentId,
+      user_id: userId
+    }
+  });
+
+  if (existingLike) {
+    await prisma.comment_likes.delete({
+      where: {
+        id: existingLike.id
+      }
+    });
+  } else {
+    await _commentLikesRepository.create({
+  
+        id: uuidv4(),
+        comment_id: commentId,
+        user_id: userId
+      
+    });
+  }
+
+  sendResponse(res, {
+    success: true,
+    message: existingLike ? 'Comment unliked' : 'Comment liked',
+    statusCode: OK,
+    data: { isLiked: !existingLike }
+  });
+});
+
+const deleteComment = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+  const { commentId } = req.params;
+  const userId = req.id;
+
+  const comment = await _commentsRepository.findUnique({
+    where: { id: commentId }
+  });
+
+  if (!comment) {
+    return next(new ErrorHandler('Comment not found', NOT_FOUND));
+  }
+
+  if (comment.author_id !== userId) {
+    return next(new ErrorHandler('Not authorized to delete this comment', UNAUTHORIZED));
+  }
+
+  await _commentsRepository.delete({
+    where: { id: commentId }
+  });
+
+  sendResponse(res, {
+    success: true,
+    message: 'Comment deleted successfully',
+    statusCode: OK,
+    data: comment
+  });
+});
+
+export const commentsController = {
+  createComment,
+  getComments,
+  toggleCommentLike,
+  deleteComment
+};
+
