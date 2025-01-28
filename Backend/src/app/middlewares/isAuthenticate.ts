@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import  { NextFunction, Request, Response } from "express";
 import catchAsync from "../utils/CatchAsyncError";
 import { UNAUTHORIZED } from "../utils/Http-Status";
 import ErrorHandler from "../utils/ErrorHandler";
@@ -6,10 +6,12 @@ import { jwtVerify } from "../utils/jwtVerify";
 
 export interface AuthenticatedRequest extends Request {
   id?: string;
-  file?: Express.Multer.File;
+  file?: any;
   query: any;
   body: any;
   params: any;
+  cookies: any;
+  headers: any;
 }
 
 export const isAuthenticate = catchAsync(

@@ -7,7 +7,7 @@ const storage = multer.memoryStorage();
 // Define the file filter function with proper types
 const fileFilter = (
   req: Request, // Express request object
-  file: Express.Multer.File, // Multer file object
+  file: any, // Multer file object
   cb: FileFilterCallback // Callback function for filtering
 ) => {
   // Optional: filter for specific file types
