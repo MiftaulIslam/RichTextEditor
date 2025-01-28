@@ -6,13 +6,14 @@ import sendResponse from "../../utils/SendResponse";
 import { OK } from "../../utils/Http-Status";
 import { v4 as uuidv4 } from 'uuid';
 import { notifications } from "@prisma/client";
+import { Request, Response, NextFunction } from 'express';
 import { Repository as NotificationsRepository } from "../../repository/implementation/Repository";
 import { io, userSocketMap } from "../../../socket/socketServer";
 
 const _likesRepository = new Repository<likes>("likes");
 const _notificationsRepository = new NotificationsRepository<notifications>("notifications");
 
-const toggleLike = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+const toggleLike = catchAsync(async (req: AuthenticatedRequest, res:Response) => {
   const { articleId } = req.params;
   const authorId = req.query.authorId as string;
   const authorDomain = req.query.authorDomain as string;

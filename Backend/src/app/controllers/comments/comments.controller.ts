@@ -9,6 +9,7 @@ import { OK, NOT_FOUND, UNAUTHORIZED } from "../../utils/Http-Status";
 import { AuthenticatedRequest } from "../../middlewares/isAuthenticate";
 import { io, userSocketMap } from '../../../socket/socketServer';
 import ErrorHandler from "../../utils/ErrorHandler";
+import { NextFunction, Response } from "express";
 
 const prisma = new PrismaClient();
 const _commentsRepository = new Repository<comments>("comments");
@@ -16,7 +17,7 @@ const _notificationsRepository = new Repository<notifications>("notifications");
 const _articlesRepository = new Repository<articles>("articles");
 const _usersRepository = new Repository<User>("User");
 const _commentLikesRepository = new Repository<comment_likes>("comment_likes");
-const createComment = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+const createComment = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   const { articleId, content } = req.body;
   const authorId = req.id; 
   const parentId = req.query.parentId;
@@ -67,7 +68,7 @@ const createComment = catchAsync(async (req: AuthenticatedRequest, res, next) =>
 });
 
 // Fetch all comments and replies for an article
-const getComments = catchAsync(async (req: AuthenticatedRequest, res) => {
+const getComments = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   const { articleId } = req.params;
 
   const comments = await _commentsRepository.findMany({
@@ -109,7 +110,7 @@ const getComments = catchAsync(async (req: AuthenticatedRequest, res) => {
   });
 });
 
-const toggleCommentLike = catchAsync(async (req: AuthenticatedRequest, res) => {
+const toggleCommentLike = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   const { commentId } = req.params;
   const userId = req.id;
 
@@ -144,7 +145,7 @@ const toggleCommentLike = catchAsync(async (req: AuthenticatedRequest, res) => {
   });
 });
 
-const deleteComment = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+const deleteComment = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   const { commentId } = req.params;
   const userId = req.id;
 

@@ -15,7 +15,7 @@ import ErrorHandler from "../../utils/ErrorHandler";
 import bcrypt from "bcrypt";
 import { mailSender } from "../../utils/mailSender";
 import { jwtVerify } from "../../utils/jwtVerify";
-import { RequestHandler, Request } from "express";
+import { RequestHandler, Request, Response, NextFunction } from "express";
 import axios from "axios";
 import FormData from "form-data";
 import { AuthenticatedRequest } from "../../middlewares/isAuthenticate";
@@ -25,7 +25,7 @@ import { io } from "../../../socket/socketServer";
 const prisma = new PrismaClient();
 //User repository
 const _userRepository = new Repository<User>("User");
-const getUserByDomain = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+const getUserByDomain = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   const { domain } = req.params;
   const userId = req.id;
 
@@ -51,7 +51,7 @@ const getUserByDomain = catchAsync(async (req: AuthenticatedRequest, res, next) 
     data:user
   });
 });
-const getAuthenticateUserInfo = catchAsync(async (req:AuthenticatedRequest, res, next)=>{
+const getAuthenticateUserInfo = catchAsync(async (req:AuthenticatedRequest, res:Response, next:NextFunction)=>{
   try {
     
     const user = await _userRepository.findUnique({ where: { id: req.id } });
@@ -70,7 +70,7 @@ const getAuthenticateUserInfo = catchAsync(async (req:AuthenticatedRequest, res,
     );
 }})
 
-const getUsers = catchAsync(async (req, res, next) => {
+const getUsers = catchAsync(async (req:Request, res:Response, next:NextFunction) => {
   try {
     const users = await _userRepository.findMany();
     sendResponse(res, {
@@ -86,7 +86,7 @@ const getUsers = catchAsync(async (req, res, next) => {
   }
 });
 
-const updateAvatar:RequestHandler = catchAsync(async(req:AuthenticatedRequest, res, next)=>{
+const updateAvatar:RequestHandler = catchAsync(async(req:AuthenticatedRequest, res:Response, next:NextFunction)=>{
 
     const formData = new FormData();
     if (!req.file) {
@@ -122,7 +122,7 @@ const updateAvatar:RequestHandler = catchAsync(async(req:AuthenticatedRequest, r
 })
 
 
-const updateEmail:RequestHandler = catchAsync(async(req:AuthenticatedRequest, res, next)=>{
+const updateEmail:RequestHandler = catchAsync(async(req:AuthenticatedRequest, res:Response, next:NextFunction)=>{
 const {email} = req.body;
 const existingEmail = await _userRepository.findUnique({where:{email}})
 if(existingEmail) return next(new ErrorHandler("Email already exists", UNAUTHORIZED));
@@ -160,7 +160,7 @@ return sendResponse(res, {
 })
 
 
-const updateInfo:RequestHandler = catchAsync(async (req:AuthenticatedRequest, res, next)=>{
+const updateInfo:RequestHandler = catchAsync(async (req:AuthenticatedRequest, res:Response, next:NextFunction)=>{
 const body = req.body;
 const user = await _userRepository.update(
   { where: { id: req.id } },
@@ -179,7 +179,7 @@ return sendResponse(res, {
 })
 
 //Signup
-const signUp: RequestHandler = catchAsync(async (req, res, next) => {
+const signUp: RequestHandler = catchAsync(async (req:Request, res:Response, next:NextFunction) => {
   try {
     const { name, email, password } = req.body;
     const existingUser = await _userRepository.findUnique({ where: { email } });
@@ -257,7 +257,7 @@ const signUp: RequestHandler = catchAsync(async (req, res, next) => {
   }
 });
 
-const login: RequestHandler = catchAsync(async (req, res, next) => {
+const login: RequestHandler = catchAsync(async (req:Request, res:Response, next:NextFunction) => {
   const { email, password } = req.body;
   const user = await _userRepository.findUnique({ where: { email } });
   if (!user) return next(new ErrorHandler("Invalid credentials", UNAUTHORIZED));
@@ -284,7 +284,7 @@ const login: RequestHandler = catchAsync(async (req, res, next) => {
     token: token,
   });
 });
-const activateAccount: RequestHandler = catchAsync(async (req, res, next) => {
+const activateAccount: RequestHandler = catchAsync(async (req:Request, res:Response, next:NextFunction) => {
   try {
     // Extract the token from request params
     const { token } = req.params;
@@ -324,7 +324,7 @@ const activateAccount: RequestHandler = catchAsync(async (req, res, next) => {
 });
 
 const requestForActivation: RequestHandler = catchAsync(
-  async (req: AuthenticatedRequest, res, next) => {
+  async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
     if (!req.id) {
       return next(new ErrorHandler("Unauthorized access", UNAUTHORIZED));
     }
@@ -356,7 +356,7 @@ const requestForActivation: RequestHandler = catchAsync(
   },
 );
 
-const update = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+const update = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   const { id } = req;
   const { name, shortbio } = req.body;
   const user = await _userRepository.update(

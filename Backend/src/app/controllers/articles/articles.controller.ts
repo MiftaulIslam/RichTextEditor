@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import { AuthenticatedRequest } from "../../middlewares/isAuthenticate";
 import axios from "axios";
 import { imgbb_api_key } from "../../config/config";
+import { NextFunction, Response } from "express";
 const prisma = new PrismaClient();
 //User repository
 const _articlesRepository = new Repository<articles>("articles");
@@ -21,7 +22,7 @@ const _tagsRepository = new Repository<tags>("tags");
 const _articleTagsRepository = new Repository<article_tags>("article_tags");
 const _userRepository = new Repository<User>("User");
 
-const getArticles = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+const getArticles = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   const { userId } = req.query;
   const isPublished = req.query.isPublished && JSON.parse(req.query.isPublished as string) ;
   const page = parseInt(req.query.page as string) || 1;
@@ -76,7 +77,7 @@ const calculateReadTime = (content: string) => {
   const minutes = Math.ceil(wordCount / wordsPerMinute);
   return minutes;
 };
-const addArticle = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+const addArticle = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   const { content } = req.body;
   if (!content) return next(new ErrorHandler("Field missing", BAD_REQUEST));
   const uuId = uuidv4();
@@ -96,7 +97,7 @@ const addArticle = catchAsync(async (req: AuthenticatedRequest, res, next) => {
   });
 });
 
-const updateArticle = catchAsync(async (req, res, next) => {
+const updateArticle = catchAsync(async (req:AuthenticatedRequest, res:Response, next:NextFunction) => {
   const { articleId } = req.params;
   const body = req.body;
   const tags = JSON.parse(req.body.tags)
@@ -181,7 +182,7 @@ const updateArticle = catchAsync(async (req, res, next) => {
   });
 });
 
-const getArticleBySlug = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+const getArticleBySlug = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   
   const { domain, articleSlug } = req.params;
   const userId = req.query.u;

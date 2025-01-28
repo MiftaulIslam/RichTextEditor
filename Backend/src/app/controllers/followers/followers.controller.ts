@@ -7,13 +7,14 @@ import { io, userSocketMap } from '../../../socket/socketServer';
 import sendResponse from '../../utils/SendResponse';
 import { BAD_REQUEST, OK } from '../../utils/Http-Status';
 import ErrorHandler from '../../utils/ErrorHandler';
+import { NextFunction, Response } from 'express';
 
 const prisma = new PrismaClient();
 const _followersRepository = new Repository<follows>("follows")
 const _notificationsRepository = new Repository("notifications")
 const _userRepository = new Repository<User>("User")
 
-const followUser = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+const followUser = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   const followerId = req.id;
   const followingId = req.params.id;
 
@@ -66,7 +67,7 @@ const followUser = catchAsync(async (req: AuthenticatedRequest, res, next) => {
   });
 });
 
-const unfollowUser = catchAsync(async (req: AuthenticatedRequest, res, next) => {
+const unfollowUser = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   const followerId = req.id;
   const followingId = req.params.id;
 

@@ -3,13 +3,14 @@ import { PrismaClient } from '@prisma/client';
 import { Repository } from "../../repository/implementation/Repository";
 import catchAsync from '../../utils/CatchAsyncError';
 import { AuthenticatedRequest } from '../../middlewares/isAuthenticate';
+import { Request, Response } from 'express';
 import sendResponse from '../../utils/SendResponse';
 import { OK } from '../../utils/Http-Status';
 
 const prisma = new PrismaClient();
 const _notificationsRepository = new Repository<notifications>("notifications");
 
-const getNotifications = catchAsync(async (req: AuthenticatedRequest, res) => {
+const getNotifications = catchAsync(async (req: AuthenticatedRequest, res:Response) => {
   const userId = req.id;
 
   const notifications:any = await _notificationsRepository.findMany({
@@ -42,7 +43,7 @@ const getNotifications = catchAsync(async (req: AuthenticatedRequest, res) => {
   });
 });
 
-const markAsRead = catchAsync(async (req: AuthenticatedRequest, res) => {
+const markAsRead = catchAsync(async (req: AuthenticatedRequest, res:Response) => {
   const userId = req.id;
   const notificationId = req.params.id;
 
