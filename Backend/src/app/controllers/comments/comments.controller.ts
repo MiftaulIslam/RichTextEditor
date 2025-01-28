@@ -30,7 +30,7 @@ const createComment = catchAsync(async (req: AuthenticatedRequest, res, next) =>
   });
 
   // Create notification for article author
-  const article = await _articlesRepository.findUnique({
+  const article:any = await _articlesRepository.findUnique({
     where: { id: articleId },
     select: { author_id: true, title: true, slug: true, User: { select: { domain: true } } }
   });

@@ -159,7 +159,7 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center">
-              <Logo size={{dev_text:3,talks_text:3}} unit="rem" />
+              <Logo size={{dev_text:2,talks_text:2}} unit="rem" />
             </Link>
 
             {/* Desktop Search */}

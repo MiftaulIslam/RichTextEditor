@@ -12,7 +12,7 @@ const _notificationsRepository = new Repository<notifications>("notifications");
 const getNotifications = catchAsync(async (req: AuthenticatedRequest, res) => {
   const userId = req.id;
 
-  const notifications = await _notificationsRepository.findMany({
+  const notifications:any = await _notificationsRepository.findMany({
     where: { recipient_id: userId },
     orderBy: { created_at: 'desc' },
     include: {
@@ -26,7 +26,7 @@ const getNotifications = catchAsync(async (req: AuthenticatedRequest, res) => {
   });
 
   // Transform the data to match the frontend structure
-  const transformedNotifications = notifications.map(n => ({
+  const transformedNotifications = notifications.map((n:any) => ({
     ...n,
     sender: {
       name: n.User_notifications_sender_idToUser.name,

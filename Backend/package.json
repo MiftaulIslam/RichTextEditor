@@ -9,6 +9,7 @@
     "g:m": "ts-node src/scripts/ModelGenerator.ts",
     "compile": "tsc && cross-env NODE_ENV=development node dist/",
     "start:dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "start:prod": "node ./dist/index.js",
     "dev": "nodemon -e ts --exec \"yarn compile\"",
     "build": "tsc",
     "start": "cross-env NODE_ENV=production node dist/index.js"

@@ -20,7 +20,7 @@ const Logo = ({ size = { dev_text: 1, talks_text: 2 }, unit = 'rem' }: LogoProps
 
   return (
     <motion.div
-      className="flex items-center px-4 py-2 rounded-xl select-none"
+      className="flex items-center px-4 rounded-xl select-none"
       whileHover={{ scale: hoverScale }}
       whileTap={{ scale: tapScale }}
     >
