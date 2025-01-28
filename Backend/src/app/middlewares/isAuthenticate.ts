@@ -6,6 +6,10 @@ import { jwtVerify } from "../utils/jwtVerify";
 
 export interface AuthenticatedRequest extends Request {
   id?: string;
+  file?: Express.Multer.File;
+  query: any;
+  body: any;
+  params: any;
 }
 
 export const isAuthenticate = catchAsync(
