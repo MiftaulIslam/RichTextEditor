@@ -174,8 +174,23 @@ return sendResponse(res, {
   statusCode: OK,
   data: user,
 });
+})
 
 
+const updateInfoAdmin:RequestHandler = catchAsync(async (req:AuthenticatedRequest, res:Response, next:NextFunction)=>{
+const body = req.body;
+const user = await _userRepository.update(
+  { where: { id: req.params.id } },
+  body
+);
+
+return sendResponse(res, {
+  success: true,
+  message:
+    "User updated successfully",
+  statusCode: OK,
+  data: user,
+});
 })
 
 //Signup
@@ -381,5 +396,6 @@ export const UserControllers = {
   requestForActivation,
   update,updateEmail,
   updateAvatar,
-  updateInfo
+  updateInfo,
+  updateInfoAdmin
 };
