@@ -15,7 +15,6 @@ const prisma = new PrismaClient();
 const _commentsRepository = new Repository<comments>("comments");
 const _notificationsRepository = new Repository<notifications>("notifications");
 const _articlesRepository = new Repository<articles>("articles");
-const _usersRepository = new Repository<User>("User");
 const _commentLikesRepository = new Repository<comment_likes>("comment_likes");
 const createComment = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
   const { articleId, content } = req.body;
