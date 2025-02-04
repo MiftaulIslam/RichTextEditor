@@ -5,7 +5,7 @@ import { Repository } from "../../repository/implementation/Repository";
 import catchAsync from "../../utils/CatchAsyncError";
 import { v4 as uuidv4 } from "uuid";
 import sendResponse from "../../utils/SendResponse";
-import { OK, NOT_FOUND, UNAUTHORIZED } from "../../utils/Http-Status";
+import { OK, NOT_FOUND, UNAUTHORIZED, BAD_REQUEST } from "../../utils/Http-Status";
 import { AuthenticatedRequest } from "../../middlewares/isAuthenticate";
 import { io, userSocketMap } from '../../../socket/socketServer';
 import ErrorHandler from "../../utils/ErrorHandler";
@@ -17,17 +17,12 @@ const _notificationsRepository = new Repository<notifications>("notifications");
 const _articlesRepository = new Repository<articles>("articles");
 const _commentLikesRepository = new Repository<comment_likes>("comment_likes");
 const createComment = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
+  //articleId and the comment as content
   const { articleId, content } = req.body;
+  //commenter id
   const authorId = req.id; 
+  //parent id
   const parentId = req.query.parentId;
-
-  const comment = await _commentsRepository.create({
-    id: uuidv4(),
-    article_id: articleId,
-    author_id: authorId,
-    content,
-    parent_id: parentId || null,
-  });
 
   // Create notification for article author
   const article:any = await _articlesRepository.findUnique({
@@ -36,9 +31,19 @@ const createComment = catchAsync(async (req: AuthenticatedRequest, res:Response,
   });
 
   if (!article) return next(new ErrorHandler("Article not found", NOT_FOUND));
-
   // Don't notify if commenter is article author
-  if (authorId !== article.author_id) {
+  if (authorId == article.author_id && !parentId) {
+    return next(new ErrorHandler("You cannot comment on your own article", BAD_REQUEST));
+  }
+  const comment = await _commentsRepository.create({
+    id: uuidv4(),
+    article_id: articleId,
+    author_id: authorId,
+    content,
+    parent_id: parentId || null,
+  });
+  if(!parentId){
+
     const notification = await _notificationsRepository.create({
       id: uuidv4(),
       recipient_id: article.author_id,
@@ -50,9 +55,30 @@ const createComment = catchAsync(async (req: AuthenticatedRequest, res:Response,
       is_read: false,
       highlight: true
     });
-
+  
     // Send real-time notification
     const recipientSocketId = userSocketMap.get(article.author_id);
+    if (recipientSocketId) {
+      io.to(recipientSocketId).emit('new-notification', notification);
+    }
+  }else{
+    const parentComment = await _commentsRepository.findUnique({
+      where: { id: parentId }
+    });
+    if(!parentComment) return next(new ErrorHandler("Parent comment not found", NOT_FOUND));
+    const notification = await _notificationsRepository.create({
+      id: uuidv4(),
+      recipient_id: parentComment.author_id,
+      sender_id: authorId,
+      type: 'comment',
+      title: 'New Comment',
+      content: `replied to your comment on "${parentComment.content}"`,
+      url_to: `/${article.User.domain}/${article.slug}`,
+      is_read: false,
+      highlight: true
+    });
+    // Send real-time notification
+    const recipientSocketId = userSocketMap.get(parentComment.author_id);
     if (recipientSocketId) {
       io.to(recipientSocketId).emit('new-notification', notification);
     }
