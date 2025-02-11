@@ -8,7 +8,7 @@ export const dbcontext =()=>{ mysql.createConnection({
   user: database_user,
   password: database_password,
   database: database_name,
-  port: 46768,
+  port: 3306,
   connectTimeout: 10000
   }).connect((err: Error) => {
     if (err) {

@@ -87,7 +87,8 @@ export default function Navbar() {
       'New Followers': [],
       'New Comments': [],
       'New Articles': [],
-      'New Likes': []
+      'New Likes': [],
+      'Others':[],
     };
 
     notificationsData.data.forEach(notification => {
@@ -103,6 +104,9 @@ export default function Navbar() {
           break;
         case 'like':
           groups['New Likes'].push(notification);
+          break;   
+          case 'other':
+          groups['Others'].push(notification);
           break;
       }
     });

@@ -54,7 +54,7 @@ model articles {
   updated_at            DateTime?      @default(now()) @db.Timestamp(0)
   publishedAt           DateTime?      @db.Timestamp(0)
   short_preview         String?        @db.VarChar(250)
-  estimate_reading_time Int            @default(0)
+  estimate_reading_time Int?           @default(0)
   article_tags          article_tags[]
   User                  User           @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_ibfk_1")
   comments              comments[]
@@ -71,14 +71,14 @@ model comments {
   created_at     DateTime?       @default(now()) @db.Timestamp(0)
   parent_id      String?         @db.Char(36)
   comment_likes  comment_likes[]
-  comments       comments?       @relation("commentsTocomments", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_comments_parent_id")
-  other_comments comments[]      @relation("commentsTocomments")
   articles       articles        @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_1")
   User           User            @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_2")
+  comments       comments?       @relation("commentsTocomments", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_comments_parent_id")
+  other_comments comments[]      @relation("commentsTocomments")
 
   @@index([article_id], map: "article_id")
   @@index([author_id], map: "author_id")
-  @@index([parent_id], map: "idx_comments_parent_id")
+  @@index([parent_id], map: "parent_id")
 }
 
 model likes {
@@ -146,4 +146,5 @@ enum notifications_type {
   comment
   like
   article
+  other
 }

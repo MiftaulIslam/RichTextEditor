@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery } from "@tanstack/react-query";
 
 import { IArticle } from "@/Interfaces/EntityInterface";
@@ -32,7 +33,7 @@ export const useArticleQueries = (setIsLiked: (isLiked: boolean) => void, isLike
     }
   });
 
-  const { data: commentsData, isLoading: isCommentsLoading } = useQuery({
+  const { data: commentsData, isLoading: isCommentsLoading } = useQuery<any>({
     queryKey: ['comments', article?.id],
     queryFn: async () => {
       return await fetchRequest(

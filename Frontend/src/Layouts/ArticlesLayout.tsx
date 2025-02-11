@@ -24,14 +24,12 @@ import {
     ContextMenuSub,
     ContextMenuSubContent,
     ContextMenuSubTrigger,
-    ContextMenuTrigger,
+    
 } from "@/Components/ui/context-menu"
-import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 4;
 
 const ArticlesLayout = () => {
-    const navigate = useNavigate();
     const token = useTokenStore((state) => state.token);
     const { fetchRequest } = useFetchQuery();
     const { ref, inView } = useInView();

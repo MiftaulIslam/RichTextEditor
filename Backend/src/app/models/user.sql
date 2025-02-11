@@ -1,13 +1,16 @@
-
-CREATE TABLE `user` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+-- User Table
+CREATE TABLE `User` (
+  `id` CHAR(36) NOT NULL,
   `name` VARCHAR(100) NOT NULL,
   `email` VARCHAR(255) NOT NULL UNIQUE,
-  `password` VARCHAR(255) NOT NULL,
-  `short_bio` VARCHAR(160),
-  `avatar` VARCHAR(2083),
-  `isActive` BOOLEAN DEFAULT TRUE,
+  `password` VARCHAR(2083) NOT NULL,
+  `short_bio` VARCHAR(160) NULL,
+  `avatar` TEXT NULL,
+  `about` VARCHAR(250) NULL,
+  `domain` VARCHAR(255) NOT NULL UNIQUE,
+  `isActive` BOOLEAN DEFAULT FALSE,
   `isBlacklisted` BOOLEAN DEFAULT FALSE,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) 
-COLLATE='utf8mb4_0900_ai_ci';
+  `isPremium` BOOLEAN DEFAULT FALSE,
+  `created_at` TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);

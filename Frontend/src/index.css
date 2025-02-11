@@ -1,14 +1,16 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-h1,h2,h3,h4,h5,h6{
+/* h1,h2,h3,h4,h5,h6{
   font-family:"Montserrat", serif;
 }
+
 p,span, button{
   font-family:"Lato", serif;
-}
+} */
+
 .editor ol{
   list-style: decimal ;
   margin-left: 1.5rem ; 
@@ -97,10 +99,47 @@ p,span, button{
   body {
     @apply bg-background text-foreground;
   }
+  .font_montserrat{
+    font-family:"Montserrat", serif;
+  }
+  .font_Lato{
+    font-family:"Lato", serif;
+  }
+  .font_josefin{ 
+    font-family: "Josefin Sans", serif;
+  }
+  .font_opensans{ 
+    font-family: "Open Sans", serif;
+  }
+  .flex_between_center{
+    @apply flex justify-between items-center;
+  }
+  .flex_center_center{
+    @apply flex justify-center items-center;
+  }
+  .flex_start_center{
+    @apply flex items-center justify-start
+  }
+  .flex_center_start{
+    @apply flex items-start justify-center
+  }
+  .pointer{
+    @apply cursor-pointer;
+  }
 }
-
-
-
+@layer components{
+  .comment_button{
+    @apply text-xs font-semibold rounded hover:underline tracking-wide bg-green-600 text-white px-4 py-2;
+  }
+  
+  .user_name{
+    @apply font-semibold text-sm;
+    font-family: "Open Sans", serif;
+  }
+  .date{
+    @apply text-gray-600 font_montserrat text-xs;
+  }
+}
 /* Custom Scrollbar Styles */
 ::-webkit-scrollbar {
   width: 8px;

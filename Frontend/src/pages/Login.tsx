@@ -22,14 +22,6 @@ interface LoginFormInputs {
     password: string;
 }
 
-// Update Logo component props interface
-interface LogoProps {
-    size: {
-        dev_text: number;
-        talks_text: number;
-    };
-    unit: string;
-}
 
 export default function Login() {
     const token = useTokenStore((state) => state.token);

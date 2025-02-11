@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useFetchQuery } from "@/hooks/useFetchQuery";
 import useTokenStore from "@/store/TokenStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -28,9 +29,9 @@ export const useCommentMutations = (articleId: string|undefined) => {
 
   // Like comment mutation
   const likeCommentMutation = useMutation({
-    mutationFn: async (commentId: string) => {
+    mutationFn: async (comment: any) => {
       return await fetchRequest(
-        `comments/${commentId}/like`,
+        `comments/${comment.id}/like?commentAuthor=${comment.author_id}&article=${comment.article_id}`,
         'POST',
         null,
         { headers: { Authorization: `Bearer ${token}` } }
