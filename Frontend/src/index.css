@@ -102,7 +102,7 @@ p,span, button{
   .font_montserrat{
     font-family:"Montserrat", serif;
   }
-  .font_Lato{
+  .font_lato{
     font-family:"Lato", serif;
   }
   .font_josefin{ 
@@ -129,7 +129,7 @@ p,span, button{
 }
 @layer components{
   .comment_button{
-    @apply text-xs font-semibold rounded hover:underline tracking-wide bg-green-600 text-white px-4 py-2;
+    @apply text-xs font-semibold hover:underline tracking-wide p-2 rounded-full;
   }
   
   .user_name{
@@ -138,6 +138,18 @@ p,span, button{
   }
   .date{
     @apply text-gray-600 font_montserrat text-xs;
+  }
+  .article h1 h2 h3 h4 h5 h6{
+    @apply font_montserrat;
+  }
+  .article p{
+    @apply font_opensans text-sm;
+  }
+  .article p b{
+    @apply font_josefin;
+  }
+  .article p i{
+    @apply font_josefin;
   }
 }
 /* Custom Scrollbar Styles */
