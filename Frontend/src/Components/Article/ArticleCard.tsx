@@ -10,6 +10,8 @@ const ArticleCard = ({ article }: { article: IArticle }) => {
     const navigate = useNavigate()
     //  const { commentsData, isLoading } = useArticleQueries(article);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false)
+  const parentComments = article.comments && article?.comments.filter((comment)=> comment.parent_id ==null);
+
     return (
     <div className="max-w-2xl mx-auto ">
       <div className="bg-white shadow-md rounded-lg overflow-hidden cursor-pointer">
@@ -53,7 +55,7 @@ const ArticleCard = ({ article }: { article: IArticle }) => {
                 <div className="flex items-center gap-1">
                   <MessageCircle size={12} />
                   <button onClick={() => setIsCommentsOpen(!isCommentsOpen)} className="hover:underline cursor-pointer">
-                    {article.comments?.length || 0} comments
+                    {parentComments?.length || 0} comments
                   </button>
                 </div>
               </div>
@@ -70,7 +72,7 @@ const ArticleCard = ({ article }: { article: IArticle }) => {
             className="mt-2 bg-white shadow-md rounded-lg overflow-hidden"
           >
             <div className="p-3 space-y-3">
-              {article?.comments?.map((comment) => (
+              {parentComments?.map((comment) => (
                 <div key={comment.id} className="flex gap-2">
                   <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 cursor-pointer" onClick={()=> navigate(`/profile/${comment.User.domain}`)}>
                     <img

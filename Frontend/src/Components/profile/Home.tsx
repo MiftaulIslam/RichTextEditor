@@ -3,12 +3,13 @@ import { useOutletContext } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useFetchQuery } from "@/hooks/useFetchQuery";
 import useTokenStore from "@/store/TokenStore";
-import BounceLoader from "../BounchLoader";
+// import BounceLoader from "../BounchLoader";
 // import { format } from "date-fns";
 import TextLoader from "@/widgets/Icons/TextLoader";
 import { IArticle } from "@/Interfaces/EntityInterface";
 import { format } from 'date-fns';
 import { IArticleResponse } from "@/Interfaces/ResponseInterface";
+import { Skeleton } from "../ui/skeleton";
 
 
 const Home = () => {
@@ -39,12 +40,33 @@ const Home = () => {
       return response;
     },
   });
-console.log(data)
   const handleSeeMore = () => {
     setPage(prev => prev + 1);
   };
 
-  if (isLoading) return <BounceLoader />;
+  // Replace this line:
+  // if (isLoading) return <BounceLoader />;
+
+  // With this skeleton layout:
+  if (isLoading) {
+    return (
+      <div className="max-w-screen-xl mx-auto px-4 space-y-8">
+        {[...Array(3)].map((_, index) => (
+          <div key={index} className="flex justify-between py-8 border-b border-gray-100 items-center gap-4 w-full">
+            <div className="w-1/2 space-y-4">
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-1/2" />
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-4 w-24" />
+              </div>
+            </div>
+            <Skeleton className="w-2/6 h-40 rounded" />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   const hasMorePages = data?.data?.pagination?.page && data?.data?.pagination?.pages 
     ? data.data.pagination.page < data.data.pagination.pages 

@@ -4,7 +4,7 @@ import { dbcontext } from "./app/context/context";
 import { io, socketserver } from "./socket/socketServer";
 
 /* Server Config */
-const server = socketserver.listen(port||4000, () => {
+const server = socketserver.listen(port, () => {
   console.log(`App Running on port ${port}`);
 });
 

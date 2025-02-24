@@ -65,7 +65,7 @@ const ArticlesLayout = () => {
             fetchNextPage();
         }
     }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage]);
-    console.log(data)
+  
     if (isLoading) return <BounceLoader />;
 
     return (

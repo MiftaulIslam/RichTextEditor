@@ -104,7 +104,6 @@ const Article = () => {
   const token = useTokenStore((state) => state.token);
   const { fetchRequest } = useFetchQuery();
   const userInfo = useUserInfo();
-
   const [following, setFollowing] = useState(false);
   const [isLike, setIsLike] = useState(false);
 
@@ -261,7 +260,7 @@ const AuthorInfo: React.FC<AuthorInfoProps> = ({ author, userInfo, following, on
       <span className='user_name cursor-pointer hover:underline' onClick={() => navigate(`/profile/${author.domain}`)}>
         {author.name}
       </span>
-      {userInfo.domain !== author.domain && (
+      {userInfo?.domain !== author.domain && (
         <>
           <span className='text-gray-500'>·</span>
           <button onClick={onFollowToggle} className='text-green-600 hover:underline font-semibold'>

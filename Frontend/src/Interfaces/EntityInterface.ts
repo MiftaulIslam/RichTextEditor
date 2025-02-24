@@ -44,6 +44,7 @@ author_id:string;
 content:string;
 created_at:string;
 User?:any
+parent_id:string|null;
 }
 
   export interface IArticle{

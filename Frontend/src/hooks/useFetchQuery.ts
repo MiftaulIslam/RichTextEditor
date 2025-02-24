@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { base_url } from "@/static/data";
+import { api_url } from "@/config/config";
+// import { base_url } from "@/static/data";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -13,7 +14,7 @@ export function useFetchQuery<T = unknown>(): UseFetchQueryReturn<T> {
     async (url: string, method: HttpMethod = "GET", body?: unknown, config?: AxiosRequestConfig) => {
       try {
         const response: AxiosResponse<T> = await axios({
-          url: `${base_url}/${url}`,
+          url: `${api_url}/${url}`,
           method,
           data: body,
           ...config,

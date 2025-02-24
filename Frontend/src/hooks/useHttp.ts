@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { base_url } from "@/static/data";
+import { api_url } from "@/config/config";
+// import { base_url } from "@/static/data";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -26,7 +27,7 @@ export function useHttp<T = unknown>(): UseHttpReturn<T> {
 
       try {
         const response: AxiosResponse<T> = await axios({
-          url: `${base_url}/${url}`,
+          url: `${api_url}/${url}`,
           method,
           data: body,
           cancelToken: source.token,

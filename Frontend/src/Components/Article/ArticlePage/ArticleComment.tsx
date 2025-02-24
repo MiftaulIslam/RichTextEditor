@@ -82,6 +82,7 @@ const CommentCard = ({ comment, handleLike, isReply, activeReply, handleActiveRe
     handleActiveReply?: any;
   }) => {
     const navigate = useNavigate()
+    
     return (
       <>
   

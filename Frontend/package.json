@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev:dev": "vite dev --mode development",
+    "dev:prod": "vite dev --mode production",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -20,6 +21,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
     "init": "^0.1.2",
     "lucide-react": "^0.469.0",
     "motion": "^11.17.0",

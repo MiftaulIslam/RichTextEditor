@@ -6,7 +6,7 @@ import { isAuthenticate } from '../../middlewares/isAuthenticate';
 
 const followers = Router();
 
-followers.post('/:id/follow', isAuthenticate, FollowersControllers.followUser);
-followers.delete('/:id/unfollow', isAuthenticate, FollowersControllers.unfollowUser);
+followers.post('/:id/follow', isAuthenticate, FollowersControllers.toggleFollowUser);
+// followers.delete('/:id/unfollow', isAuthenticate, FollowersControllers.unfollowUser);
 
 export const FollowersRoutes = followers;

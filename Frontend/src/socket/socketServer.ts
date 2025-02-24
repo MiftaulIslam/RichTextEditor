@@ -1,4 +1,5 @@
-import { base_url } from '@/static/data';
+// import { base_url } from '@/static/data';
+import { base_url } from '@/config/config';
 import { io, Socket } from 'socket.io-client';
 
 const socket: Socket = io(base_url, {
@@ -13,7 +14,7 @@ socket.on('connect', () => {
 });
 
 socket.on('connect_error', (error) => {
-  console.error('Socket connection error:', error);
+  console.log('Socket connection error:'+ error);
 });
 
 socket.on('disconnect', (reason) => {

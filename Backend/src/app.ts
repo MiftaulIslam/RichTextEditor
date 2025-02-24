@@ -12,7 +12,6 @@ import { createServer } from 'http';
 import { frontend_url, port } from './app/config/config';
 
 const app: Application = express();
-// const io = new Server(3000);
 /* app default middlewares */
 app.use(cookieParser());
 

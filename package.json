@@ -2,9 +2,11 @@
   "name": "root-project",
   "version": "1.0.0",
   "scripts": {
-    "frontend": "npm run dev --prefix frontend",
+    "frontend:dev": "npm run dev:dev --prefix frontend",
+    "frontend:prod": "npm run dev:prod --prefix frontend",
     "backend": "npm run start:dev --prefix backend",
-    "start": "concurrently \"npm run frontend\" \"npm run backend\""
+    "start:dev": "concurrently \"npm run frontend:dev\" \"npm run backend\"",
+    "start:prod": "concurrently \"npm run frontend:prod\" \"npm run backend\""
   },
   "dependencies": {
     "concurrently": "^9.1.2"
