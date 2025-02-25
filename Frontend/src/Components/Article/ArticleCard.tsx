@@ -13,8 +13,8 @@ const ArticleCard = ({ article }: { article: IArticle }) => {
   const parentComments = article.comments && article?.comments.filter((comment)=> comment.parent_id ==null);
 
     return (
-    <div className="max-w-2xl mx-auto ">
-      <div className="bg-white shadow-md rounded-lg overflow-hidden cursor-pointer">
+ 
+      <div className="bg-white shadow rounded overflow-hidden cursor-pointer">
         <div className="p-3">
           <div className="flex items-center gap-2 mb-2" onClick={() => navigate(`/profile/${article.User?.domain}`)}>
             <div className="w-6 h-6 rounded-full overflow-hidden">
@@ -24,13 +24,13 @@ const ArticleCard = ({ article }: { article: IArticle }) => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <span className="font-medium text-xs text-gray-500 hover:underline cursor-pointer">
+            <span className="font-semibold text-xs text-gray-700  hover:underline cursor-pointer">
               {article.User?.name}
             </span>
           </div>
           <div className="flex gap-4 items-start justify-between cursor-pointer" onClick={() => navigate(`/${article.User?.domain}/${article.slug}`)}>
             <div className="space-y-2">
-              <h2 className="text-lg font-bold leading-tight tracking-tight">{article.title}</h2>
+              <h4 className="text-lg leading-tight tracking-tight">{article.title}</h4>
               <p className="text-gray-600 text-xs line-clamp-2">{article.short_preview}</p>
               
             </div>
@@ -60,8 +60,7 @@ const ArticleCard = ({ article }: { article: IArticle }) => {
                 </div>
               </div>
         </div>
-      </div>
-
+        
       <AnimatePresence>
         {isCommentsOpen && (
           <motion.div
@@ -69,7 +68,7 @@ const ArticleCard = ({ article }: { article: IArticle }) => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="mt-2 bg-white shadow-md rounded-lg overflow-hidden"
+            className="mt-2 bg-white shadow-md rounded-lg overflow-hidden border-t"
           >
             <div className="p-3 space-y-3">
               {parentComments?.map((comment) => (
@@ -94,7 +93,8 @@ const ArticleCard = ({ article }: { article: IArticle }) => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+
     )
 }
 

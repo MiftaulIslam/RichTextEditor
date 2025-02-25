@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, Bell, Edit, ChevronDown, X, User } from 'lucide-react'
+import { Search, Bell, Edit, ChevronDown, X } from 'lucide-react'
 import { Link } from "react-router-dom"
 import Logo from "../Logo"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -11,6 +11,8 @@ import useTokenStore from "@/store/TokenStore"
 import { useFetchQuery } from "@/hooks/useFetchQuery"
 import Notification, { INotification, NotificationGroup } from "./Notification"
 import { IUser } from "@/Interfaces/EntityInterface"
+import { Button } from "../ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 
 interface INotificationResponse {
   data: INotification[];
@@ -28,7 +30,6 @@ export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isNotificationDropDownOpen, setIsNotificationDropDownOpen] = useState(false)
-  const [isHover, setIsHover] = useState(false)
 
   // ===== Data Fetching =====
   // Fetch user information
@@ -154,33 +155,33 @@ export default function Navbar() {
   ]
 
   if (isLoading) return <BounceLoader />
-
+  if(userInfo){
   // ===== Render Component =====
   return (
     <header className="relative border-gray-200 border-b">
       <div className="mx-auto max-w-[1600px]">
         <div className="flex justify-between items-center px-6 py-3">
-          {/* Logo */}
+          {/* Logo and Search */}
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center">
               <Logo size={{dev_text:2,talks_text:2}} unit="rem" />
             </Link>
 
             {/* Desktop Search */}
-            <div className="md:flex items-center hidden bg-gray-50 px-3 py-1 rounded-full">
+            <div className="hidden md:flex items-center bg-gray-100 px-3 py-2 rounded-full">
               <Search className="w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent px-2 border-none w-44 placeholder:text-gray-500 outline-none"
+                className="bg-transparent px-2 border-none w-44 placeholder:text-gray-500 outline-none text-sm"
               />
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             {/* Mobile Search Icon */}
             <button
               className="md:hidden"
@@ -188,108 +189,98 @@ export default function Navbar() {
             >
               <Search className="w-5 h-5 text-gray-500" />
             </button>
+
             {/* Alert */}
-            {
-              (!userInfo?.data.isActive && userInfo) && (
+            {!userInfo.data.isActive && (
+                  <Button className="hover:bg-transparent" variant="ghost" size="icon">
+                    <Alert />
+                  </Button>
+            )}
 
-                <div>
-                  <Alert />
-                </div>
-              )
-            }
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="md:flex items-center gap-2 hidden text-gray-500 hover:text-gray-700"
-            >
+            {/* Write Button */}
+            <Link to="/editor" className="hidden md:flex items-center gap-2 text-gray-700 hover:text-gray-900">
               <Edit className="w-5 h-5" />
-              <Link to={"editor"}>Write</Link>
-            </motion.button>
-            {/* Bell icon e hover korle jei notification er dropdown ashbe sheitar part */}
-            <AnimatePresence>
-              {isNotificationDropDownOpen && (
-                <Notification 
-                  isOpen={isNotificationDropDownOpen}
-                  onClose={() => setIsNotificationDropDownOpen(false)}
-                  notificationGroups={notificationGroups}
-                />
-              )}
-            </AnimatePresence>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative"
-            >
-              <Bell
-                onClick={() => setIsNotificationDropDownOpen(!isNotificationDropDownOpen)}
-                className="w-5 h-5 text-gray-500"
-              />
-              {notificationsData?.data && notificationsData.data.some(n => !n.is_read) && (
-                <span className="-top-1 -right-1 absolute bg-green-500 rounded-full w-2 h-2" />
-              )}
-            </motion.button>
+              <span className="text-sm font-medium">Write</span>
+            </Link>
 
-            <div>
-              {!userInfo ? (
-                <div className="relative h-9"
-                  onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}
-                >
-                  <motion.div >
-                    <User size={30} className="text-gray-500 hover:text-gray-600" />
-                  </motion.div>
-
-
-                  <AnimatePresence>
-                    {isHover && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ duration: 0.2 }}
-                        className="-left-20 absolute bg-white shadow-lg mt-2 px-4 py-2 rounded-lg w-[200px] max-w-[300px] text-center text-gray-800 text-sm"
-                      >
-                        <p className="text-center text-gray-600 text-sm">You haven't logged in yet</p>
-                        <Link to={"/login"} className="mt-1 font-semibold text-center text-gray-500 text-xs underline cursor-pointer">Login</Link>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ) :
-
-                (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 cursor-pointer"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  >
-                    {
-                      userInfo ? (
-                        <img src={userInfo?.data?.avatar ?? ""} className="bg-gray-200 rounded-full w-8 h-8 object-fill" />
-                      ) : (
-                        <User />
-                      )
-                    }
-                    <ChevronDown className="w-4 h-4 text-gray-500" />
-                  </motion.button>
+            {/* Notifications */}
+            <div className="relative">
+              <Button
+                variant="ghost"
+                className="hover:bg-transparent hover:scale-110"
+                size="icon"
+                onClick={() => {setIsNotificationDropDownOpen(!isNotificationDropDownOpen); setIsDropdownOpen(false);}}
+              >
+                <Bell className="w-5 h-5 text-gray-500" />
+                {notificationsData?.data && notificationsData.data.some(n => !n.is_read) && (
+                  <span className="absolute top-0 right-0 bg-green-500 rounded-full w-2 h-2" />
                 )}
+              </Button>
+
+              <AnimatePresence>
+                {isNotificationDropDownOpen && (
+                  <Notification 
+                    isOpen={isNotificationDropDownOpen}
+                    onClose={() => {setIsNotificationDropDownOpen(false); setIsDropdownOpen(false);}}
+                    notificationGroups={notificationGroups}
+                  />
+                )}
+              </AnimatePresence>
             </div>
 
+            {/* User Menu */}
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="sm"
+
+                className="flex items-center gap-2 hover:bg-transparent"
+                onClick={() => {setIsDropdownOpen(!isDropdownOpen);setIsNotificationDropDownOpen(false);}}
+              >
+                <img src={userInfo.data.avatar ?? ""} alt="User avatar" className="w-8 h-8 rounded-full object-cover" />
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              </Button>
+
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50"
+                  >
+                    {dropdownItems.map((item, index) => (
+                      item.type === "divider" ? (
+                        <hr key={index} className="my-1 border-gray-200" />
+                      ) : (
+                        <Link
+                          key={item.label}
+                          to={`${item.href}`}
+                          className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${item.highlight ? 'font-semibold text-green-600' : ''}`}
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          {item.label}
+                        </Link>
+                      )
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
 
         {/* Navigation */}
         <nav className="flex items-center gap-1 px-6 overflow-x-auto scrollbar-hide">
           {navItems.map((item, index) => (
-            <motion.button
+            <Button
               key={item}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`px-3 py-3 text-sm whitespace-nowrap ${index === 0 ? "text-black" : "text-gray-500"
-                } hover:text-black`}
+              variant="ghost"
+              size="sm"
+              className={`whitespace-nowrap ${index === 0 ? "text-black" : "text-gray-500"} hover:text-black hover:bg-transparent`}
             >
               {item}
-            </motion.button>
+            </Button>
           ))}
         </nav>
       </div>
@@ -301,54 +292,65 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="z-50 absolute inset-0 bg-white p-4"
+            className="absolute inset-0 bg-white p-4 z-50"
           >
             <div className="flex items-center gap-4">
-              <button onClick={() => setIsSearchOpen(false)}>
+              <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(false)}>
                 <X className="w-5 h-5 text-gray-500" />
-              </button>
+              </Button>
               <input
                 type="text"
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="border-none w-full outline-none"
-                autoFocus
+                className="flex-1 bg-gray-100 px-4 py-2 rounded-full outline-none"
               />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Dropdown Menu */}
-      <AnimatePresence>
-        {isDropdownOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="top-16 right-6 z-40 absolute border-gray-200 bg-white shadow-lg border rounded-md w-64"
-          >
-            <div className="py-2">
-              {dropdownItems.map((item, index) => (
-                item.type === "divider" ? (
-                  <div key={index} className="bg-gray-200 my-2 h-[1px]" />
-                ) : (
-                  <Link
-                    key={index}
-                    to={item.href as string}
-                    className={`block px-4 py-2 text-sm ${item.highlight ? 'text-green-600 font-semibold' :
-                      item.action ? 'text-gray-700' : 'text-gray-600'
-                      } hover:bg-gray-50`}
-                  >
-                    {item.label}
-                  </Link>
-                )
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </header>
-  )
+  );
+}
+  else{
+    return (
+      <header className="mx-auto max-w-[1600px] p-2 z-10 relative">
+        <nav className="flex_between_center">
+          
+        <Link to="/" className="flex_start_center">
+              <Logo size={{dev_text:2,talks_text:2}} unit="rem" />
+            </Link>
+          <div className="space-x-4">
+            
+      <Dialog >
+        
+      <DialogTrigger asChild>
+        <Button variant="outline"><Edit className="w-5 h-5"/> Write</Button>
+      </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Join Our Community</DialogTitle>
+            <DialogDescription>
+              You need to be a member of our community to start writing. Sign up now to share your thoughts and stories
+              with the world!
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end space-x-4 mt-4">
+            <Button><Link to={"/signup"}> Sign Up</Link></Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+            <Button variant={'ghost'}><Link to={"/login"} >
+              Log in
+            </Link></Button>
+            
+            <Button><Link to={"/signup"}>Get started</Link></Button>
+
+
+          </div>
+        </nav>
+      </header>
+    )
+  }
 }

@@ -69,7 +69,7 @@ const ProfileLayout: React.FC = () => {
 
   return (
     userInfo && (
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8 ">
         <ProfileHeader 
           displayData={displayData} 
           isOwnProfile={isOwnProfile}
@@ -120,7 +120,7 @@ const ProfileImage: React.FC<{ avatar: string | undefined, name: string }> = ({ 
         <User size={60} className="text-gray-600"/>
       </span>
     )}
-    <h1 className="text-2xl font-bold mb-2">{name}</h1>
+    <h4 className="text-2xl mb-2">{name}</h4>
   </div>
 );
 

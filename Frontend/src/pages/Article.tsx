@@ -256,7 +256,7 @@ const AuthorImage: React.FC<AuthorImageProps> = ({ author, navigate }) => (
 
 const AuthorInfo: React.FC<AuthorInfoProps> = ({ author, userInfo, following, onFollowToggle, navigate }) => (
   <div className='space-y-1'>
-    <p className="text-sm font_lato space-x-2 flex_start_center">
+    <p className="text-sm space-x-2 flex_start_center">
       <span className='user_name cursor-pointer hover:underline' onClick={() => navigate(`/profile/${author.domain}`)}>
         {author.name}
       </span>
@@ -288,7 +288,7 @@ const ArticleMetadata: React.FC<ArticleMetadataProps> = ({ article, isLike, comm
       </a>
     </p>
     <span className='text-gray-500'>·</span>
-    <p className='text-gray-600 font_montserrat text-xs space-x-2 flex_start_center'>
+    <p className='text-gray-600  text-xs space-x-2 flex_start_center'>
       <span>{article.estimate_reading_time && `${article.estimate_reading_time} min read`}</span>
       <span>·</span>
       <span>{format(new Date(article.created_at), 'MMM dd, yyyy')}</span>
@@ -298,8 +298,8 @@ const ArticleMetadata: React.FC<ArticleMetadataProps> = ({ article, isLike, comm
 
 const ArticleTitle: React.FC<ArticleTitleProps> = ({ title, shortPreview }) => (
   <div className='space-y-2'>
-    <h1 className="text-2xl font-semibold italic font_montserrat">{title}</h1>
-    <p className="text-gray-500 text-sm font-semibold font_opensans">{shortPreview}</p>
+    <h1 className="text-2xl">{title}</h1>
+    <p className="text-gray-600 text-base">{shortPreview}</p>
   </div>
 );
 
@@ -344,7 +344,7 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ article, userinfo }) =>
 const UserArticles: React.FC<UserArticlesProps> = ({ user, navigate }) => (
   user.articles.length > 0 && (
     <section className='my-8 space-y-6'>
-      <h2 className="text-xl font-semibold w-full">More from {user.name}</h2>
+      <h2 className="text-xl w-full">More from {user.name}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {user.articles.slice(0, 4).map((article: IArticle) => (
           <ArticleCardPositionVertical key={article.id} article={article} />
@@ -359,7 +359,7 @@ const UserArticles: React.FC<UserArticlesProps> = ({ user, navigate }) => (
 
 const RecommendedArticles: React.FC<RecommendedArticlesProps> = ({ articles }) => (
   <section className='my-8 space-y-6'>
-    <h2 className="text-xl font-semibold w-full">Recommended for you</h2>
+    <h2 className="text-xl w-full">Recommended for you</h2>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {articles.slice(0, 4).map((article: IArticle) => (
         <ArticleCardPositionVertical key={article.id} article={article} />

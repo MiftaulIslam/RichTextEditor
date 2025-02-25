@@ -6,12 +6,15 @@ const RootLayout = () => {
   
   return (
     <>
+    <div className="min-h-screen">
+
       {/* Navbar always visible */}
       <Navbar />
       {/* Outlet for rendering child routes */}
       <Outlet />
       <Toaster />
       {/* //footer */}
+    </div>
     </>
   );
 };

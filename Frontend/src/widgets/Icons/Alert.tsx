@@ -40,10 +40,9 @@ export default function Alert() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
-              className="absolute -left-32 w-[500px] mt-2 px-4 py-2 bg-white text-gray-800 text-sm max-w-[300px] rounded-lg shadow-lg"
+              className="absolute -left-32 w-[300px] mt-2 px-4 py-2 bg-white text-gray-800 text-sm rounded-lg shadow-lg"
             >
-              <p className="text-center text-gray-600 text-sm">You are not verified yet. Please complete the verification process to unlock all features and use the platform to its full potential.</p>
-              <p className="text-center text-xs mt-1 font-semibold underline cursor-pointer text-gray-500">Become a verified writer</p>
+              <p className=" text-gray-500 text-xs break-words whitespace-normal">Please complete the verification process to use the platform to its full potential.</p>
             </motion.div>
           )}
         </AnimatePresence>

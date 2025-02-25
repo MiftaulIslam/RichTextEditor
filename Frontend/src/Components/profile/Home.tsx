@@ -73,18 +73,24 @@ const Home = () => {
     : false;
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4">
+    <div className="max-w-3xl px-4">
       {data?.data?.articles?.length === 0 ? (
         <div className="text-center text-gray-500">No articles found</div>
       ) : (
       <div className="space-y-8">
         {data?.data.articles.map((article:IArticle) => (
           <article key={article.id} className="cursor-pointer" >
-           <div className=" flex justify-between py-8 border-b border-gray-100 items-center gap-4 w-full">
-           <div className="w-1/2 space-y-4">
-           <h2 className="text-xl font-bold hover:text-gray-600">
+           <div className=" flex justify-between p2-8 border-b border-gray-100 items-center gap-4 w-full">
+            
+          {article.thumbnail && (
+          //  <div className=" m-0">
+            <img src={article.thumbnail || ''} alt={article.title || ''} className="w-1/4 rounded max-h-48 m-0 p-0 object-cover" />
+      
+          )}
+           <div className=" w-4/6 space-y-4">
+           <h4 className="text-xl hover:text-gray-600">
               {article.title}
-            </h2>
+            </h4>
             <p className="text-gray-600 text-sm">
               {article?.short_preview?.slice(0, 150)}...
             </p>
@@ -92,11 +98,6 @@ const Home = () => {
               <span>{ format(new Date(article.created_at), 'MMM dd, yyyy')}</span>
             </div>
            </div>
-          {article.thumbnail && (
-          //  <div className=" m-0">
-            <img src={article.thumbnail || ''} alt={article.title || ''} className="w-2/6 rounded min-h-40 max-h-48 m-0 p-0 object-fit" />
-      
-          )}
 
            </div>
 

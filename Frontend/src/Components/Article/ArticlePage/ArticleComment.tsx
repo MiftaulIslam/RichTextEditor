@@ -63,10 +63,10 @@ const CommentInput = ({
           ref={textareaRef}
           {...inputRegister}
           placeholder={error? error : placeholder}
-          className={`${className} ${error &&'placeholder:text-red-400' } font_montserrat w-full p-3 border rounded resize-none focus:outline-none shadow text-sm text-gray-700`}
+          className={`${className} ${error &&'placeholder:text-red-400' } w-full p-3 border rounded resize-none focus:outline-none shadow text-sm text-gray-700`}
         />
         {/* {error && <p className="mt-1 text-red-500 text-sm">{error}</p>} */}
-        <button type='submit' className="absolute bottom-3 right-3 mt-2 comment_button font_opensans ">
+        <button type='submit' className="absolute bottom-3 right-3 mt-2 comment_button  ">
   
           {buttonText}
         </button>
@@ -107,7 +107,7 @@ const CommentCard = ({ comment, handleLike, isReply, activeReply, handleActiveRe
             </button>
           </div>
           {/* comment */}
-          <p className="text-sm font_opensans text-gray-600 max-w-64 break-words">{comment?.content}</p>
+          <p className="text-sm  text-gray-600 max-w-64 break-words">{comment?.content}</p>
           <div className='flex_start_center gap-1'>
   
   
@@ -260,7 +260,7 @@ const ArticleComment = ({article}:{article:any}) => {
   return (
     <section className="mt-8 border-t pt-8" id='comments-preview'>
 
-    <h3 className="font_montserrat font-semibold my-4">Comments ({commentsData?.data.length || 0})</h3>
+    <h3 className="my-4">Comments ({commentsData?.data.length || 0})</h3>
 
 
     {/* Comment Input */}
@@ -334,7 +334,7 @@ const ArticleComment = ({article}:{article:any}) => {
       <SheetTrigger asChild>
         {
           commentsData?.data.length > 2 && (
-            <button className=" font_opensans my-2 text-sm text-green-600 font-semibold rounded underline px-1 py-2">
+            <button className="  my-2 text-sm text-green-600 font-semibold rounded underline px-1 py-2">
               See more ({commentsData?.data.length})
             </button>
           )
@@ -342,7 +342,7 @@ const ArticleComment = ({article}:{article:any}) => {
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle className="font_opensans underline">Responses ({commentsData?.data.length || 0})</SheetTitle>
+          <SheetTitle className="underline">Responses ({commentsData?.data.length || 0})</SheetTitle>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-8rem)] mt-6">
           <div className="space-y-6 pr-4 w-full">

@@ -35,6 +35,7 @@ const getUserByDomain = catchAsync(async (req: AuthenticatedRequest, res:Respons
       domain: domain, // Replace userId with the actual user ID you're looking for
     },
     include: {
+      articles:true,
       follows_follows_following_idToUser: {
         include: {
           User_follows_follower_idToUser: true,
@@ -56,7 +57,9 @@ const getUserByDomain = catchAsync(async (req: AuthenticatedRequest, res:Respons
 const getAuthenticateUserInfo = catchAsync(async (req:AuthenticatedRequest, res:Response, next:NextFunction)=>{
   try {
     
-    const user = await _userRepository.findUnique({ where: { id: req.id } });
+    const user = await _userRepository.findUnique({ where: { id: req.id }, include:{
+      articles:true,
+    } });
     if (!user) {
       return next(new ErrorHandler("User not found", UNAUTHORIZED));
     }
