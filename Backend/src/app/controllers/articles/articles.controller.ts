@@ -9,6 +9,7 @@ import {
   OK,
   BAD_REQUEST,
   NOT_FOUND,
+  INTERNAL_SERVER_ERROR,
 } from "../../utils/Http-Status";
 import { v4 as uuidv4 } from "uuid";
 import { AuthenticatedRequest } from "../../middlewares/isAuthenticate";
@@ -245,4 +246,23 @@ const getArticleBySlug = catchAsync(async (req: AuthenticatedRequest, res:Respon
   });
 });
 
-export const ArticlesControllers = { getArticles, addArticle, updateArticle, getArticleBySlug };
+
+//delete
+const deleteArticle = catchAsync(async (req: AuthenticatedRequest, res:Response, next:NextFunction) => {
+  try {
+    const { articleId } = req.params;
+    const article = await _articlesRepository.delete({ where: { id: articleId } });
+    if (!article) return next(new ErrorHandler("Article not found", NOT_FOUND));
+    sendResponse(res, {
+      success: true,
+      message: "Article deleted successfully",
+      statusCode: OK,
+      data: article,
+    });
+  } catch (error) {
+    return next(new ErrorHandler("Internal Server Error", INTERNAL_SERVER_ERROR))
+  }
+ 
+});
+
+export const ArticlesControllers = { getArticles, addArticle, updateArticle, getArticleBySlug, deleteArticle };

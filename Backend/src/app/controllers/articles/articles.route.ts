@@ -11,4 +11,5 @@ articles.get("/:domain/:articleSlug", ArticlesControllers.getArticleBySlug);
 
 articles.post("/p", isAuthenticate,ArticlesControllers.addArticle)
 articles.put("/p/:articleId/e", isAuthenticate,upload.single("thumbnail"),ArticlesControllers.updateArticle)
+articles.delete("/:articleId/d", isAuthenticate,ArticlesControllers.deleteArticle)
 export const ArticlesRoutes = articles;

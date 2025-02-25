@@ -6,7 +6,7 @@ const SettingLayout = () => {
 <div className="max-w-6xl mx-auto px-4 py-6">
     <header className="flex flex-col mb-8">
       {/* Profile Section */}
-       <h1 className="text-4xl font-bold mb-8">Setting</h1>
+       <h1 className="text-3xl mb-8">Setting</h1>
 
       {/* Navigation Tabs */}
       <nav className="w-full border-b pb-3">

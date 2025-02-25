@@ -130,7 +130,7 @@ const AccountSetting = () => {
         <motion.div whileHover={{ scale: 1.01 }} className="flex justify-between items-center cursor-pointer"
           onClick={() => setIsEmailModalOpen(true)}>
 
-          <h2 className="font-medium">Email address</h2>
+          <h2>Email address</h2>
           <div className="flex items-center gap-1">
             <p className="text-gray-600">{userInfo?.data.email}</p>
             <ArrowRight classname="w-4 h-4" />
@@ -140,7 +140,7 @@ const AccountSetting = () => {
 
         <motion.div whileHover={{ scale: 1.01 }} className="flex justify-between items-center cursor-pointer">
 
-          <h2 className="font-medium">Domain</h2>
+          <h2>Domain</h2>
           <div className="flex items-center gap-1">
             <p className="text-gray-600">{userInfo?.data.domain}</p>
             <ArrowRight classname="w-4 h-4" />
@@ -154,7 +154,7 @@ const AccountSetting = () => {
           onClick={() => setIsProfileSettingModalOpen(true)}
         >
           <div>
-            <h2 className="font-medium">Profile information</h2>
+            <h2>Profile information</h2>
             <p className="text-gray-600">Edit your photo, name, short bio, etc.</p>
           </div>
           <div className="flex items-center gap-2">
@@ -172,7 +172,7 @@ const AccountSetting = () => {
 
           <Link to={'/'} className="flex justify-between items-center">
             <div>
-              <h2 className="font-medium">Profile design</h2>
+              <h2>Profile design</h2>
               <p className="text-gray-600">Customize the appearance of your profile.</p>
             </div>
             <ArrowRight classname="w-4 h-4" />
@@ -182,7 +182,7 @@ const AccountSetting = () => {
 
         <div className="flex justify-between items-center cursor-pointer">
           <div>
-            <h2 className="font-medium">Custom domain</h2>
+            <h2>Custom domain</h2>
             <p className="text-gray-600">
               Upgrade to a Medium Membership to redirect your profile URL to a domain like yourdomain.com.
             </p>
@@ -199,7 +199,7 @@ const AccountSetting = () => {
           className="flex justify-between items-center cursor-pointer"
           whileHover={{ scale: 1.01 }}>
           <div>
-            <h2 className="font-medium">Muted writers and publications</h2>
+            <h2>Muted writers and publications</h2>
           </div>
           <ArrowRight classname="w-4 h-4" />
 
@@ -208,7 +208,7 @@ const AccountSetting = () => {
         <motion.div
           className="flex justify-between items-center cursor-pointer"
           whileHover={{ scale: 1.01 }}>
-          <h2 className="font-medium">Blocked users</h2>
+          <h2>Blocked users</h2>
           <ArrowRight classname="w-4 h-4" />
 
         </motion.div>
