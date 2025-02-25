@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -83,7 +84,7 @@ const Home = () => {
       });
 
       // Invalidate and refetch
-      queryClient.invalidateQueries(["articles", userId, page]);
+      queryClient.invalidateQueries({ queryKey: ["articles", userId, page] });
       
       // Close the dialog
       closeDeleteDialog();
