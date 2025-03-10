@@ -43,6 +43,7 @@ function App() {
 
   return (
     <>
+    <h1 className='bg-background'></h1>
       <RouterProvider router={router} />
     </>
   );

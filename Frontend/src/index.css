@@ -58,6 +58,37 @@ p,span, body {
   font-family: 'Poppins', sans-serif;  
   font-weight: 600;  
 }  
+
+
+/* CK Editor classes */
+
+.main-container {
+	width: fit-content;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.ck-content {
+	line-height: 1.6;
+	word-break: break-word;
+}
+.ck-content h1{
+  font-size: 2em !important;
+}
+.ck-content h2{
+  font-size: 1.5em !important;
+}
+.ck-content h3{
+  font-size: 1.17em !important;
+}
+.editor-container_inline-editor .editor-container__editor {
+	min-width: 795px;
+	max-width: 795px;
+}
+
+.editor-container_include-block-toolbar {
+	margin-left: 42px;
+}
 @layer base {
   :root {
     --background: 214 99.35% 98.5%;
@@ -147,6 +178,7 @@ p,span, body {
   .date{
     @apply text-gray-600 text-xs;
   }
+
   /* .article h1 h2 h3 h4 h5 h6{
     @apply font_montserrat;
   }

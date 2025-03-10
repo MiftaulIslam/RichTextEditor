@@ -9,6 +9,9 @@
     "start:prod": "concurrently \"npm run frontend:prod\" \"npm run backend\""
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-core": "^44.3.0",
+    "@ckeditor/ckeditor5-ui": "^44.3.0",
+    "@types/ckeditor__ckeditor5-core": "^33.0.3",
     "concurrently": "^9.1.2"
   }
 }

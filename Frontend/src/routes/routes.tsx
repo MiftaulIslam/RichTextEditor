@@ -19,6 +19,7 @@ import Article from "@/pages/Article";
 
 import { createBrowserRouter } from 'react-router-dom';
 import ActivationPage from "@/pages/ActivationPage";
+import TestCKEditor from "@/pages/TestCKEditor";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -39,7 +40,10 @@ const router = createBrowserRouter([
         path: "editor/publish/p/:articleId",
         element: <PublishArticle />,
       },
-
+      {
+path:"test",
+element:<TestCKEditor/>
+      },
       {
         path: ":domain/:slug",
         element: <Article />
