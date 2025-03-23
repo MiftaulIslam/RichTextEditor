@@ -17,9 +17,9 @@ import PublishArticle from "@/pages/PublishArticle";
 import Signup from "@/pages/Signup";
 import Article from "@/pages/Article";
 
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter } from "react-router-dom";
 import ActivationPage from "@/pages/ActivationPage";
-import TestCKEditor from "@/pages/TestCKEditor";
+import RichTextEditor from "@/pages/Editor/SlateEditor";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -28,7 +28,8 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <HomeLayout />,
-      }, {
+      },
+      {
         path: "activate/:token",
         element: <ActivationPage />,
       },
@@ -41,12 +42,12 @@ const router = createBrowserRouter([
         element: <PublishArticle />,
       },
       {
-path:"test",
-element:<TestCKEditor/>
+        path: "test/slate",
+        element: <RichTextEditor />,
       },
       {
         path: ":domain/:slug",
-        element: <Article />
+        element: <Article />,
       },
       {
         path: "profile/:domain",
@@ -64,8 +65,9 @@ element:<TestCKEditor/>
             path: "lists",
             element: <Lists />,
           },
-        ]
-      }, {
+        ],
+      },
+      {
         path: "settings",
         element: <SettingLayout />,
         children: [
@@ -89,11 +91,10 @@ element:<TestCKEditor/>
             path: "security-settings",
             element: <SecuritySetting />,
           },
-        ]
+        ],
       },
     ],
   },
-
 
   {
     path: "/login",
@@ -103,7 +104,6 @@ element:<TestCKEditor/>
     path: "/signup",
     element: <Signup />,
   },
-])
-
+]);
 
 export default router;
