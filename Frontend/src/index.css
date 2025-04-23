@@ -57,36 +57,35 @@ p,span, body {
   font-weight: 600;  
 }  
 
+/* editor css */
 
-/* CK Editor classes */
-
-.main-container {
-	width: fit-content;
-	margin-left: auto;
-	margin-right: auto;
-}
-
-.ck-content {
-	line-height: 1.6;
-	word-break: break-word;
-}
-.ck-content h1{
-  font-size: 2em !important;
-}
-.ck-content h2{
-  font-size: 1.5em !important;
-}
-.ck-content h3{
-  font-size: 1.17em !important;
-}
-.editor-container_inline-editor .editor-container__editor {
-	min-width: 795px;
-	max-width: 795px;
+.editor-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1rem auto;
 }
 
-.editor-container_include-block-toolbar {
-	margin-left: 42px;
+.editor-image img {
+  max-width: 100%;
+  display: block;
 }
+
+.ProseMirror {
+  outline: none !important;
+  min-height: calc(100vh - 190px);
+  max-height: calc(100vh - 190px);
+  overflow: hidden;
+  overflow-y: auto;
+  /* border: 2px solid red; */
+}
+.ProseMirror-focused {
+  outline: none !important;
+  border: none !important;
+  min-height: calc(100vh - 190px);
+}
+
+
 @layer base {
   :root {
     --background: 214 99.35% 98.5%;
@@ -177,19 +176,8 @@ p,span, body {
     @apply text-gray-600 text-xs;
   }
 
-  /* .article h1 h2 h3 h4 h5 h6{
-    @apply font_montserrat;
-  }
-  .article p{
-    @apply font_opensans text-sm;
-  }
-  .article p b{
-    @apply font_josefin;
-  }
-  .article p i{
-    @apply font_josefin;
-  } */
 }
+
 /* Custom Scrollbar Styles */
 ::-webkit-scrollbar {
   width: 8px;
@@ -228,11 +216,16 @@ p,span, body {
   scrollbar-width: none;  /* Firefox */
 }
 
+/* editor css */
+
+
 @layer base {
   * {
-    @apply border-border outline-ring/50; 
+    @apply border-border outline-ring/50 box-border; 
   }
   body {
     @apply bg-background text-foreground; 
   } 
+
+
 }

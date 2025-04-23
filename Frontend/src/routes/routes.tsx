@@ -19,7 +19,8 @@ import Article from "@/pages/Article";
 
 import { createBrowserRouter } from "react-router-dom";
 import ActivationPage from "@/pages/ActivationPage";
-import RichTextEditor from "@/pages/Editor/SlateEditor";
+import Editor from "@/pages/editor/editor";
+// import RichTextEditor from "@/pages/Editor/SlateEditor";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -42,8 +43,8 @@ const router = createBrowserRouter([
         element: <PublishArticle />,
       },
       {
-        path: "test/slate",
-        element: <RichTextEditor />,
+        path: "test/editor",
+        element: <Editor />,
       },
       {
         path: ":domain/:slug",
