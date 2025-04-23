@@ -6,12 +6,23 @@ import Link from "@tiptap/extension-link"
 import Underline from "@tiptap/extension-underline"
 import TextAlign from "@tiptap/extension-text-align"
 import Image from "@tiptap/extension-image"
+import { Paragraph } from '@tiptap/extension-paragraph';
+import Placeholder from '@tiptap/extension-placeholder';
+
 export const availableExtensions:any = [
     {
         extension: StarterKit,
         config: {
           heading: false,
         },
+      }, {
+        extension: Paragraph,
+      }, {
+        extension: Placeholder,
+        config: {
+          placeholder: `Type '/' for commands`,
+          showOnlyWhenEditable: true, 
+        }
       },
       {
         extension: Heading,
