@@ -7,7 +7,7 @@ const HomeLayout = () => {
   if (userInfo) {
     return (
       <main className="min-h-screen">
-        <div className="mx-auto px-4 py-8 max-w-7xl">
+        <div className="mx-auto px-4 py-4 max-w-7xl">
           <ArticlesLayout />
         </div>
       </main>

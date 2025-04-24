@@ -1,15 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
-// import { IArticleResponse } from "@/Interfaces/ArticleInterfaces";
 import useTokenStore from "@/store/TokenStore";
 import { useFetchQuery } from "@/hooks/useFetchQuery";
-// import ArticlesList from "@/Components/Article/ArticleList";
 import ArticleCard from "@/Components/Article/ArticleCard";
 import { IArticle } from "@/Interfaces/EntityInterface";
 import { motion } from "framer-motion";
-import { Skeleton } from "@/Components/ui/skeleton";
+
 import {
   ContextMenu,
   ContextMenuCheckboxItem,
@@ -23,50 +21,22 @@ import {
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
-//   ContextMenuTrigger,
+  //   ContextMenuTrigger,
 } from "@/Components/ui/context-menu";
-
-const ITEMS_PER_PAGE = 4;
-
-const RenderSkeletons = () => {
-  return (
-    <div className="space-y-8">
-      {[...Array(ITEMS_PER_PAGE)].map((_, index) => (
-        <div key={index} className="max-w-3xl mx-auto">
-          <div className="shadow rounded overflow-hidden">
-            <div className="p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Skeleton className="w-6 h-6 rounded-full" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-              <div className="flex gap-4 items-start justify-between">
-                <div className="space-y-2 flex-1">
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-5/6" />
-                </div>
-                <Skeleton className="w-1/4 h-20 rounded" />
-              </div>
-              <div className="flex items-center gap-3 mt-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
+import BlogCardSkeleton from "@/widgets/skeletons/blog-card-skeleton";
+import { ToggleGroup, ToggleGroupItem } from "@/Components/ui/toggle-group";
+import { LayoutGrid, List } from "lucide-react";
 
 const ArticlesLayout = () => {
+  const [itemPerPage, setItemPerPage] = useState(10);
+  const [isList, setIsList] = useState(true);
+
   const token = useTokenStore((state) => state.token);
   const { fetchRequest } = useFetchQuery();
   const { ref, inView } = useInView();
   const fetchArticles = async (pageParam: number) => {
     const response = await fetchRequest(
-      `articles?page=${pageParam}&limit=${ITEMS_PER_PAGE}&isPublished=true`,
+      `articles?page=${pageParam}&limit=${itemPerPage}&isPublished=true`,
       "GET",
       null,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -90,15 +60,66 @@ const ArticlesLayout = () => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage, itemPerPage]);
 
-  // if (isLoading) return <BounceLoader />;
-
+  console.log(`isList: ${isList}`)
+  console.log(`itemPerPage: ${itemPerPage}`)
   return (
-    <main className="p-6 min-h-screen">
+    <main className="min-h-screen">
       <div className="mx-auto max-w-4xl">
         <div className="space-y-8">
+
+          <div className="w-full p-1 rounded-lg flex flex-wrap justify-between items-center gap-4">
+
+            {/* toggle view */}
+            <ToggleGroup
+              type="single"
+              className="hidden sm:block"
+              value={isList ? "list" : "grid"}
+              onValueChange={(value) => setIsList(value === "list")}
+              size={"default"}
+              variant={"default"}
+            >
+              <ToggleGroupItem value="list" aria-label="List view">
+                <List className="h-4 w-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="grid" aria-label="Grid view">
+                <LayoutGrid className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+
+            {/* item per page */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Items per page:
+              </span>
+              <ToggleGroup
+                type="single"
+                value={itemPerPage.toString()}
+                onValueChange={(value) => setItemPerPage(Number(value))}
+                size={"default"}
+                variant={"default"}
+              >
+                <ToggleGroupItem value="10" aria-label="10 items per page">
+                  10
+                </ToggleGroupItem>
+                <ToggleGroupItem value="20" aria-label="20 items per page">
+                  20
+                </ToggleGroupItem>
+                <ToggleGroupItem value="50" aria-label="50 items per page">
+                  50
+                </ToggleGroupItem>
+                <ToggleGroupItem value="100" aria-label="100 items per page">
+                  100
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+          </div>
+          
           {!isLoading ? (
+            <div className={`${!isList && "grid grid-cols-1 md:grid-cols-2 gap-4"}`}>
+              {
+                
             data?.pages.map((page: any) =>
               page.data.articles.map((article: IArticle) => (
                 <motion.div
@@ -109,8 +130,9 @@ const ArticlesLayout = () => {
                 >
                   <ContextMenu>
                     {/* <ContextMenuTrigger className="rounded-md border border-dashed text-sm"> */}
-                    <div className="max-w-2xl mx-auto ">
-                      <ArticleCard article={article} />
+                    
+                    <div className={`${isList && "max-w-2xl mx-auto "}`}>
+                      <ArticleCard article={article} isList={isList} />
                     </div>
                     {/* </ContextMenuTrigger> */}
                     <ContextMenuContent className="w-64">
@@ -165,13 +187,17 @@ const ArticlesLayout = () => {
                 </motion.div>
               ))
             )
+              }
+            </div>
           ) : (
-            <RenderSkeletons />
+            <BlogCardSkeleton item_per_page={itemPerPage} />
           )}
         </div>
 
         <div ref={ref} className="p-4">
-          {isFetchingNextPage && RenderSkeletons()}
+          {isFetchingNextPage && (
+            <BlogCardSkeleton item_per_page={itemPerPage} />
+          )}
         </div>
       </div>
     </main>

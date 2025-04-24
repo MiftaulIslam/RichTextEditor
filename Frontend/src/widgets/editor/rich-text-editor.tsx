@@ -55,7 +55,6 @@ const containerRef = useRef<HTMLElement|null>(null);
   }, [editor])
 
 
-  console.log(()=> editor?.commands.createParagraphNear())
   return (
     <Card className="border shadow-sm">
       <EditorToolbar editor={editor} addImage={addImage} />
