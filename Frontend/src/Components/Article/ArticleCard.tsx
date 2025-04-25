@@ -1,16 +1,11 @@
 import {
-  // Calendar,
   ChevronDown,
   ChevronUp,
   Heart,
   MessageCircle,
-  // ThumbsUp,
 } from "lucide-react";
-// import { format } from "date-fns";
 import { IArticle } from "@/Interfaces/EntityInterface";
 import { useState } from "react";
-// import { motion } from "motion/react";
-// import { AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router-dom";
 
 import { Card, CardContent, CardFooter } from "@/Components/ui/card";

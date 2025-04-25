@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SlashCommands } from "@/widgets/editor/slash-command";
+import { SlashCommands } from "@/Components/editor/slash-command";
 import StarterKit from "@tiptap/starter-kit";
 import Heading from "@tiptap/extension-heading"
 import Link from "@tiptap/extension-link"

@@ -1,12 +1,12 @@
 
-import { useEditor, EditorContent } from "@tiptap/react"
+import {  EditorContent } from "@tiptap/react"
 import { useState, useCallback, useEffect, useRef } from "react"
 import { EditorToolbar } from "./editor-toolbar"
 import { Card, CardContent } from "@/Components/ui/card"
-import { BubbleToolbar } from "./bubble-toolbar"
-import { extensions } from "@/utils/editor/available-extensions"
+import { BubbleToolbar } from "../../widgets/editor/bubble-toolbar"
 import { Button } from "@/Components/ui/button"
-import { Plus } from "lucide-react"
+import { ArrowBigRight, Plus } from "lucide-react"
+import { Editor } from "./editor"
 
 export function RichTextEditor() {
   const [content, setContent] = useState("<p>Hello, start typing here...</p>")
@@ -14,15 +14,9 @@ export function RichTextEditor() {
     top: number
   } >({top:0})
 const containerRef = useRef<HTMLElement|null>(null);
-  const editor = useEditor({
-    extensions: [
-        ...extensions
-    ],
-    content,
-    onUpdate: ({ editor }) => {
-      setContent(editor.getHTML())
-    },
-  })
+const editor = Editor({
+  content, setContent
+})
 
   const addImage = useCallback(
     (url: string) => {
@@ -56,9 +50,12 @@ const containerRef = useRef<HTMLElement|null>(null);
 
 
   return (
-    <Card className="border shadow-sm">
+    <Card className="border shadow-sm relative">
       <EditorToolbar editor={editor} addImage={addImage} />
+      {/* send button */}
+      <Button size={'icon'} className='absolute -right-6 top-2 bg-green-600 shadow rounded-full border text-white z-50'><ArrowBigRight className='!w-6 !h-6'/></Button>
       <CardContent className="px-4 py-2 relative" ref={containerRef as React.RefObject<HTMLDivElement>}>
+        {/* new line button */}
         <Button
            variant="outline"
               size="icon"
