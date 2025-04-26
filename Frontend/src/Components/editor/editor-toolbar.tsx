@@ -1,6 +1,4 @@
-"use client"
 
-import type React from "react"
 
 import type { Editor } from "@tiptap/react"
 import {
@@ -25,13 +23,14 @@ import {
 
 import { useState } from "react"
 // import { ImageUpload } from "./image-upload"
-import { Toggle } from "@/Components/ui/toggle"
+// import { Toggle } from "@/Components/ui/toggle"
 import { Separator } from "@/Components/ui/separator"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/Components/ui/dropdown-menu"
 import { Button } from "@/Components/ui/button"
 import { Popover,         PopoverTrigger,PopoverContent } from "@/Components/ui/popover"
 import { Input } from "@/Components/ui/input"
 import { ImageUpload } from "./image-upload"
+import { Toggle } from "@/Components/ui/toggle"
 
 interface EditorToolbarProps {
   editor: Editor | null

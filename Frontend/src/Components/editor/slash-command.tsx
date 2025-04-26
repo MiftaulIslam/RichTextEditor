@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"
 
-import { Extension } from "@tiptap/core"
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react"
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
 
 import getIcon from "@/utils/iconConverter"
-import { SlashConfig } from "@/utils/editor/config/slashConfig"
+import { selectionCalc } from "@/utils/selection-move-key-calc"
+import { scrollSelectedItemIntoView } from "@/utils/scroll-selected-into-view"
 
 interface CommandsListProps {
   items: any[]
@@ -16,44 +15,21 @@ interface CommandsListRef {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean
 }
 
-export const SlashCommands = Extension.create({
-  name: "slash-commands",
-
-  addOptions() {
-    return {
-      suggestion: {
-        char: "/",
-        command: ({ editor, range, props }: any) => {
-          props.command({ editor, range })
-        },
-      },
-    }
-  },
-
-  addProseMirrorPlugins() {
-    const suggestionConfig = new SlashConfig(this.editor, this.options.suggestion);
-    return [suggestionConfig.getPlugin()];
-  },
-})
 
 export const CommandsList = forwardRef<CommandsListRef, CommandsListProps>((props, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
-
-  const selectItem = (index: number) => {
-    if (!props.items[index]) return;
-    props.command(props.items[index])
-  }
-
+  const containerRef = useRef<HTMLDivElement>(null)
+  const itemsRef = useRef<(HTMLButtonElement | null)[]>([])
 
   const keyHandlers = useMemo(
     () =>
       ({
         ArrowUp: () => {
-          setSelectedIndex((selectedIndex + props.items.length - 1) % props.items.length)
+          setSelectedIndex(selectionCalc(selectedIndex, props.items.length).up)
           return true;
         },
         ArrowDown: () => {
-          setSelectedIndex((selectedIndex + 1) % props.items.length)
+          setSelectedIndex(selectionCalc(selectedIndex, props.items.length).down)
           return true;
         },
         Enter: () => {
@@ -77,20 +53,36 @@ export const CommandsList = forwardRef<CommandsListRef, CommandsListProps>((prop
   );
 
   useEffect(() => setSelectedIndex(0), [props.items])
+  
+  // Scroll selected item into view when selectedIndex changes
+  useEffect(() => {
+
+    if (!containerRef.current && !itemsRef.current[selectedIndex]) return;
+
+      scrollSelectedItemIntoView(
+        containerRef.current,
+        itemsRef.current[selectedIndex] as HTMLElement
+      );
+    
+  }, [selectedIndex])
 
   if (props.items.length === 0) {
     return null
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-md shadow-md border overflow-hidden p-1 max-h-80 overflow-y-auto">
+    <div 
+      ref={containerRef}
+      className="bg-white dark:bg-gray-800 rounded-md shadow-md border overflow-hidden p-1 max-h-80 overflow-y-auto"
+    >
       {props.items.map((item, index) => (
         <button
           key={index}
+          ref={el => itemsRef.current[index] = el}
           className={`flex items-center gap-2 w-full text-left px-3 py-2 text-sm rounded-md ${
             index === selectedIndex ? "bg-muted" : "hover:bg-muted"
           }`}
-          onClick={() => selectItem(index)}
+          onClick={() => props.items[index] && props.command(props.items[index])}
         >
           <div className="flex items-center justify-center w-8 h-8 rounded-md bg-muted-foreground/10">{getIcon(item.icon, 'w-5, h-5')}</div>
           <div>

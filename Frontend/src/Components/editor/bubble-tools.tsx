@@ -4,7 +4,7 @@ const iconHeight = 'h-40';
 const iconSize = `${iconWidth} ${iconHeight}`;
 
 import { Popover, PopoverTrigger, PopoverContent } from "@/Components/ui/popover";
-import { Toggle } from "@/components/ui/toggle";
+import { Toggle } from "@/Components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/Components/ui/tooltip";
 
 import { memo } from "react";
