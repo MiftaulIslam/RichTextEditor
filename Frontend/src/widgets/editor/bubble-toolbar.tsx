@@ -24,7 +24,7 @@ export function BubbleToolbar({ editor }: BubbleToolbarProps) {
       
         {Tools( {editor} ).map((tool) => (
           <Button key={tool.name} asChild>
-            <BubbleTools identifier={tool.name} tool={tool} editor={editor} />
+            <BubbleTools  tool={tool} editor={editor} />
           </Button>
         ))}
       

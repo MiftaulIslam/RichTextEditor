@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SlashCommands } from "@/Components/editor/slash-command";
+// import { SlashCommands } from "@/Components/editor/slash-command";
 import StarterKit from "@tiptap/starter-kit";
 import Heading from "@tiptap/extension-heading"
 import Link from "@tiptap/extension-link"
@@ -8,6 +8,8 @@ import TextAlign from "@tiptap/extension-text-align"
 import Image from "@tiptap/extension-image"
 import { Paragraph } from '@tiptap/extension-paragraph';
 import Placeholder from '@tiptap/extension-placeholder';
+import { SlashCommands } from "@/Components/editor/slash-command";
+
 
 export const availableExtensions:any = [
     {

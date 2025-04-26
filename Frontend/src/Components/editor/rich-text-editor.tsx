@@ -6,10 +6,10 @@ import { Card, CardContent } from "@/Components/ui/card"
 import { BubbleToolbar } from "../../widgets/editor/bubble-toolbar"
 import { Button } from "@/Components/ui/button"
 import { ArrowBigRight, Plus } from "lucide-react"
-import { Editor } from "./editor"
+import { Editor } from "../../utils/editor/editor"
 
 export function RichTextEditor() {
-  const [content, setContent] = useState("<p>Hello, start typing here...</p>")
+  const [content, setContent] = useState("")
   const [position, setPosition] = useState<{
     top: number
   } >({top:0})

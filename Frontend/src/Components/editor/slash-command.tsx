@@ -2,12 +2,19 @@
 "use client"
 
 import { Extension } from "@tiptap/core"
-import Suggestion from "@tiptap/suggestion"
-import { ReactRenderer } from "@tiptap/react"
-import tippy from "tippy.js"
-import { Heading1, Heading2, Heading3, List, ListOrdered, Text, ImageIcon, Code, Quote, Table } from "lucide-react"
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react"
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react"
 
+import getIcon from "@/utils/iconConverter"
+import { SlashConfig } from "@/utils/editor/config/slashConfig"
+
+interface CommandsListProps {
+  items: any[]
+  command: (item: any) => void
+}
+
+interface CommandsListRef {
+  onKeyDown: (props: { event: KeyboardEvent }) => boolean
+}
 
 export const SlashCommands = Extension.create({
   name: "slash-commands",
@@ -24,227 +31,52 @@ export const SlashCommands = Extension.create({
   },
 
   addProseMirrorPlugins() {
-    return [
-      Suggestion({
-        editor: this.editor,
-        ...this.options.suggestion,
-        items: ({ query }: { query: string }) => {
-          return [
-            {
-              title: "Text",
-              description: "Just start typing with plain text",
-              icon: <Text size={18} />,
-              command: ({ editor, range }: any) => {
-                editor.chain().focus().deleteRange(range).setParagraph().run()
-              },
-            },
-            {
-              title: "Heading 1",
-              description: "Large section heading",
-              icon: <Heading1 size={18} />,
-              command: ({ editor, range }: any) => {
-                editor.chain().focus().deleteRange(range).setHeading({ level: 1 }).run()
-              },
-            },
-            {
-              title: "Heading 2",
-              description: "Medium section heading",
-              icon: <Heading2 size={18} />,
-              command: ({ editor, range }: any) => {
-                editor.chain().focus().deleteRange(range).setHeading({ level: 2 }).run()
-              },
-            },
-            {
-              title: "Heading 3",
-              description: "Small section heading",
-              icon: <Heading3 size={18} />,
-              command: ({ editor, range }: any) => {
-                editor.chain().focus().deleteRange(range).setHeading({ level: 3 }).run()
-              },
-            },
-            {
-              title: "Bullet List",
-              description: "Create a simple bullet list",
-              icon: <List size={18} />,
-              command: ({ editor, range }: any) => {
-                editor.chain().focus().deleteRange(range).toggleBulletList().run()
-              },
-            },
-            {
-              title: "Numbered List",
-              description: "Create a numbered list",
-              icon: <ListOrdered size={18} />,
-              command: ({ editor, range }: any) => {
-                editor.chain().focus().deleteRange(range).toggleOrderedList().run()
-              },
-            },
-            {
-              title: "Quote",
-              description: "Capture a quote",
-              icon: <Quote size={18} />,
-              command: ({ editor, range }: any) => {
-                editor.chain().focus().deleteRange(range).toggleBlockquote().run()
-              },
-            },
-            {
-              title: "Code",
-              description: "Add a code block",
-              icon: <Code size={18} />,
-              command: ({ editor, range }: any) => {
-                editor.chain().focus().deleteRange(range).toggleCodeBlock().run()
-              },
-            },
-            {
-              title: "Image",
-              description: "Add an image",
-              icon: <ImageIcon size={18} />,
-              command: async ({ editor, range }: any) => {
-                // Handle image upload via Cloudinary
-                const input = document.createElement("input")
-                input.type = "file"
-                input.accept = "image/*"
-
-                input.onchange = async (e) => {
-                  const target = e.target as HTMLInputElement
-                  if (target.files && target.files[0]) {
-                    const file = target.files[0]
-
-                    try {
-                      
-                        // If Cloudinary is not configured, use local preview
-                        const reader = new FileReader()
-                        reader.onload = (readerEvent) => {
-                          const imageUrl = readerEvent.target?.result as string
-                          editor.chain().focus().deleteRange(range).setImage({ src: imageUrl }).run()
-                        }
-                        reader.readAsDataURL(file)
-                      
-                    } catch (error) {
-                      console.error("Error uploading image:", error)
-                      // You might want to show an error message to the user
-                      alert("Failed to upload image. Please try again.")
-                    }
-                  }
-                }
-
-                input.click()
-              },
-            },
-            {
-              title: "Table",
-              description: "Add a table",
-              icon: <Table size={18} />,
-              command: ({ editor, range }: any) => {
-                editor.chain().focus().deleteRange(range).insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-              },
-            },
-          ].filter((item) => {
-            if (typeof query === "string" && query.length > 0) {
-              return item.title.toLowerCase().includes(query.toLowerCase())
-            }
-            return true
-          })
-        },
-        render: () => {
-          let component: ReactRenderer
-          let popup: any
-
-          return {
-            onStart: (props: any) => {
-              component = new ReactRenderer(CommandsList, {
-                props,
-                editor: props.editor,
-              })
-
-              popup = tippy("body", {
-                getReferenceClientRect: props.clientRect,
-                appendTo: () => document.body,
-                content: component.element,
-                showOnCreate: true,
-                interactive: true,
-                trigger: "manual",
-                placement: "bottom-start",
-              })
-            },
-            onUpdate(props: any) {
-              component.updateProps(props)
-
-              popup[0].setProps({
-                getReferenceClientRect: props.clientRect,
-              })
-            },
-            onKeyDown(props: any) {
-              if (props.event.key === "Escape") {
-                popup[0].hide()
-                return true
-              }
-
-              return component.ref?.onKeyDown(props)
-            },
-            onExit() {
-              popup[0].destroy()
-              component.destroy()
-            },
-          }
-        },
-      }),
-    ]
+    const suggestionConfig = new SlashConfig(this.editor, this.options.suggestion);
+    return [suggestionConfig.getPlugin()];
   },
 })
 
-interface CommandsListProps {
-  items: any[]
-  command: (item: any) => void
-}
-
-interface CommandsListRef {
-  onKeyDown: (props: { event: KeyboardEvent }) => boolean
-}
-
-const CommandsList = forwardRef<CommandsListRef, CommandsListProps>((props, ref) => {
+export const CommandsList = forwardRef<CommandsListRef, CommandsListProps>((props, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const selectItem = (index: number) => {
-    const item = props.items[index]
-    if (item) {
-      props.command(item)
-    }
+    if (!props.items[index]) return;
+    props.command(props.items[index])
   }
 
-  const upHandler = () => {
-    setSelectedIndex((selectedIndex + props.items.length - 1) % props.items.length)
-  }
 
-  const downHandler = () => {
-    setSelectedIndex((selectedIndex + 1) % props.items.length)
-  }
+  const keyHandlers = useMemo(
+    () =>
+      ({
+        ArrowUp: () => {
+          setSelectedIndex((selectedIndex + props.items.length - 1) % props.items.length)
+          return true;
+        },
+        ArrowDown: () => {
+          setSelectedIndex((selectedIndex + 1) % props.items.length)
+          return true;
+        },
+        Enter: () => {
+          if (!props.items[selectedIndex]) return false;
+          props.command(props.items[selectedIndex])
+          return true;
+        },
+      }) as Record<string, () => boolean>,
+    [selectedIndex, props]
+  );
 
-  const enterHandler = () => {
-    selectItem(selectedIndex)
-  }
+  useImperativeHandle(
+    ref,
+    () => ({
+      onKeyDown: ({ event }) => {
+        const handler = keyHandlers[event.key];
+        return handler ? handler() : false;
+      },
+    }),
+    [keyHandlers]
+  );
 
   useEffect(() => setSelectedIndex(0), [props.items])
-
-  useImperativeHandle(ref, () => ({
-    onKeyDown: ({ event }) => {
-      if (event.key === "ArrowUp") {
-        upHandler()
-        return true
-      }
-
-      if (event.key === "ArrowDown") {
-        downHandler()
-        return true
-      }
-
-      if (event.key === "Enter") {
-        enterHandler()
-        return true
-      }
-
-      return false
-    },
-  }))
 
   if (props.items.length === 0) {
     return null
@@ -260,7 +92,7 @@ const CommandsList = forwardRef<CommandsListRef, CommandsListProps>((props, ref)
           }`}
           onClick={() => selectItem(index)}
         >
-          <div className="flex items-center justify-center w-8 h-8 rounded-md bg-muted-foreground/10">{item.icon}</div>
+          <div className="flex items-center justify-center w-8 h-8 rounded-md bg-muted-foreground/10">{getIcon(item.icon, 'w-5, h-5')}</div>
           <div>
             <p className="font-medium">{item.title}</p>
             <p className="text-xs text-muted-foreground">{item.description}</p>
