@@ -11,62 +11,65 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { SlashConfig } from "./config/slashConfig";
 const slashExtension = new SlashConfig();
 
-export const availableExtensions:any = [
-    {
-        extension: StarterKit,
-        config: {
-          heading: false,
-        },
-      }, {
-        extension: Paragraph,
-      }, {
-        extension: Placeholder,
-        config: {
-          placeholder: `Type '/' for commands`,
-          showOnlyWhenEditable: true, 
-        }
+export const availableExtensions: any = [
+  {
+    extension: StarterKit,
+    config: {
+      heading: false,
+    },
+  }, {
+    extension: Paragraph,
+  }, {
+    extension: Placeholder,
+    config: {
+      placeholder: `Type '/' for commands`,
+      showOnlyWhenEditable: true,
+    }
+  },
+  {
+    extension: Heading,
+    config: {
+      levels: [1, 2, 3],
+      HTMLAttributes: {
+        'data-editor-heading': 'heading',
       },
-      {
-        extension: Heading,
-        config: {
-          levels: [1, 2, 3],
-        },
+    },
+  },
+  {
+    extension: Link,
+    config: {
+      openOnClick: false,
+    },
+  },
+  {
+    extension: Underline,
+  },
+  {
+    extension: TextAlign,
+    config: {
+      types: ['heading', 'paragraph'],
+    },
+  },
+  {
+    extension: Image,
+    config: {
+      allowBase64: true,
+      inline: false,
+      HTMLAttributes: {
+        class: 'editor-image',
       },
-      {
-        extension: Link,
-        config: {
-          openOnClick: false,
-        },
-      },
-      {
-        extension: Underline,
-      },
-      {
-        extension: TextAlign,
-        config: {
-          types: ['heading', 'paragraph'],
-        },
-      },
-      {
-        extension: Image,
-        config: {
-          allowBase64: true,
-          inline: false,
-          HTMLAttributes: {
-            class: 'editor-image',
-          },
-        },
-      },
-      {
-        extension: slashExtension.slashCommand(),
-      },
-      // {
-      //   extension: SlashCommands,
-      // },
-     
-]
-export const extensions:any = []
+    },
+  },
+  {
+    extension: slashExtension.slashCommand(),
+  },
+  // {
+  //   extension: SlashCommands,
+  // },
 
-for(const extension of availableExtensions){
-    extensions.push(extension.config ? extension.extension.configure(extension?.config) : extension.extension )
+]
+export const extensions: any = []
+
+for (const extension of availableExtensions) {
+  extensions.push(extension.config ? extension.extension.configure(extension?.config) : extension.extension)
 }

@@ -39,8 +39,6 @@ p,span, button{
 /* Hierarchy */  
 h1, h2, h3 {  
   font-family: 'Oswald', sans-serif;  
-  /* font-weight: 600;   */
-  /* text-transform: uppercase;   */
 }  
 
 h4, h5, h6 {  
@@ -91,7 +89,21 @@ p,span, body {
   height: 0;
   pointer-events: none;
 }
-
+h1[data-editor-heading= 'heading']{
+  font-size:2em;
+  font-weight: 700;
+  margin-bottom: 0.5em;
+}
+h2[data-editor-heading= 'heading']{
+  font-size:1.5em;
+  font-weight: 700;
+  margin-bottom: 0.5em;
+}
+h3[data-editor-heading= 'heading']{
+  font-size:1.17em;
+  font-weight: 700;
+  margin-bottom: 0.5em;
+}
 @layer base {
   :root {
     --background: 214 99.35% 98.5%;
