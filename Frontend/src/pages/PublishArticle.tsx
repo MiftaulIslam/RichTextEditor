@@ -7,6 +7,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { MultiSelect, type Option } from "@/Components/multi-select"
+import { Label } from "@/Components/ui/label"
 
 interface FormData {
   title: string;
@@ -19,22 +21,27 @@ const PublishArticle = () => {
   const navigate = useNavigate()
     const userInfo = useUserInfo();
   const {articleId} = useParams();
-  const { register, handleSubmit, control, reset, watch } = useForm<FormData>({
+  const { register, handleSubmit, control, watch, setValue } = useForm<FormData>({
     defaultValues: {
       title: "",
       short_preview: "",
-      tags: ["React"],
+      tags: [],
       publishAt: "",
     },
   });
 
-  // const { fetchRequest } = useFetchQuery<articleResponse>();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [image, setImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [newTopic, setNewTopic] = useState("");
   const [showSchedule, setShowSchedule] = useState(false);
   const topics = watch("tags");
+  const [availableTopics] = useState<Option[]>([
+    { label: "Technology", value: "technology" },
+    { label: "Programming", value: "programming" },
+    { label: "Web Development", value: "web-development" },
+    { label: "Cloud Computing", value: "cloud-computing" },
+    { label: "DevOps", value: "devops" },
+  ])
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,42 +62,47 @@ const PublishArticle = () => {
     }
   };
 
-  const handleAddTopic = () => {
-    if (newTopic.trim() && topics.length < 5) {
-      reset({ ...watch(), tags: [...topics, newTopic.trim()] });
-      setNewTopic("");
-    }
-  };
-
-  const handleRemoveTopic = (topicToRemove: string) => {
-    reset({ ...watch(), tags: topics.filter((topic) => topic !== topicToRemove) });
-  };
-
-  const { loading, sendRequest } = useHttp();
+  const { loading, sendRequest, error } = useHttp();
   const token = useTokenStore((state) => state.token);
   const onSubmit = async (data: FormData) => {
     const formData = new FormData();
 
-  // Append basic fields using forEach
-  Object.keys(data).forEach((key) => {
-    if (key === "tags") {
-      // Tags array needs to be converted to a string
-      formData.append(key, JSON.stringify(data[key]));
-    } else if (data[key as keyof FormData]) {
-      // For other fields, just append the value
-      formData.append(key, data[key as keyof FormData] as string);
+    // Append basic fields using forEach
+    Object.keys(data).forEach((key) => {
+      if (key === "tags") {
+        // Tags array needs to be converted to a string
+        formData.append(key, JSON.stringify(data[key]));
+      } else if (data[key as keyof FormData]) {
+        // For other fields, just append the value
+        formData.append(key, data[key as keyof FormData] as string);
+      }
+    });
+
+    if(!image) {
+      toast("Article needs a thumbnail", {
+        description: "Please add a thumbnail image for your article.",
+      });
+      return;
     }
-  });
 
-  if(!image) alert("Article needs a thumbnail")
-  // If there's an image preview, convert it to a Blob and append
-  if (image) {
-    formData.append("thumbnail", image); // You can dynamically generate file names if needed
-  }
+    // If there's an image preview, convert it to a Blob and append
+    if (image) {
+      formData.append("thumbnail", image);
+    }
 
-  const headers = { Authorization: `Bearer ${token}` };
-  await sendRequest(`articles/p/${articleId}/e`, "PUT", formData, {headers});
-    // await fetchRequest(`articles/p/${articleId}/e`, "PUT", formData, {headers})
+    const headers = { Authorization: `Bearer ${token}` };
+    const success = await sendRequest(`articles/p/${articleId}/e`, "PUT", formData, {headers});
+    
+    if(success) {
+      toast("Article published successfully", {
+        description: "Your article has been published successfully.",
+      });
+      navigate("/");
+    } else {
+      toast("Something went wrong", {
+        description: error || "Please try again.",
+      });
+    }
   };
 useEffect(() => {
   if (!token ) {
@@ -115,8 +127,11 @@ useEffect(() => {
     navigate('/')
     return;
   }
-}, [userInfo])
+}, [navigate, token, userInfo])
 
+  const setTopics = (newTopics: string[]) => {
+    setValue("tags", newTopics);
+  };
 
   if(loading) return <BounceLoader/>
 
@@ -180,36 +195,21 @@ useEffect(() => {
 
         {/* Topics Section */}
         <div className="space-y-2">
-          <p className="text-gray-600 text-sm">
-            Add or change topics (up to 5) so readers know what your story is about.
+          <Label htmlFor="topics">Topics</Label>
+          <MultiSelect
+            options={availableTopics}
+            selected={topics}
+            onChange={setTopics}
+            placeholder="Type to add topics..."
+            allowCreation={true}
+            onCreateOption={(input) => ({
+              label: input,
+              value: input.toLowerCase().replace(/\s+/g, "-")
+            })}
+          />
+          <p className="text-sm text-muted-foreground mt-2">
+            Selected: {topics.length > 0 ? topics.join(", ") : "None"}
           </p>
-          <div className="flex flex-wrap gap-2">
-            {topics.map((topic, index) => (
-              <span
-                key={index}
-                className="inline-flex items-center bg-gray-100 px-3 py-1 rounded-full text-sm"
-              >
-                {topic}
-                <button
-                  type="button"
-                  onClick={() => handleRemoveTopic(topic)}
-                  className="ml-2 hover:text-gray-700"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
-            {topics.length < 5 && (
-              <input
-                type="text"
-                value={newTopic}
-                onChange={(e) => setNewTopic(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAddTopic()}
-                placeholder="Add a topic..."
-                className="bg-transparent border-none focus:ring-0 text-sm focus:outline-none placeholder-gray-400"
-              />
-            )}
-          </div>
         </div>
 
         {/* Schedule Section */}
@@ -243,8 +243,9 @@ useEffect(() => {
               Preview Article
             </button>
             <button
+            disabled={loading || !image}
               type="submit"
-              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-full text-white"
+              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-full text-white disabled:opacity-50"
             >
               {showSchedule ? "Schedule to publish" : "Publish now"}
             </button>

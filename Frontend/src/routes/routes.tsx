@@ -11,7 +11,6 @@ import HomeLayout from "@/Layouts/HomeLayout";
 import ProfileLayout from "@/Layouts/ProfileLayout";
 import RootLayout from "@/Layouts/RootLayout";
 import SettingLayout from "@/Layouts/SettingLayout";
-import TextEditor from "@/Layouts/TextEditor";
 import Login from "@/pages/Login";
 import PublishArticle from "@/pages/PublishArticle";
 import Signup from "@/pages/Signup";
@@ -36,15 +35,11 @@ const router = createBrowserRouter([
       },
       {
         path: "editor",
-        element: <TextEditor />,
+        element: <Editor />,
       },
       {
         path: "editor/publish/p/:articleId",
         element: <PublishArticle />,
-      },
-      {
-        path: "test/editor",
-        element: <Editor />,
       },
       {
         path: ":domain/:slug",

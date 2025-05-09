@@ -1,17 +1,23 @@
 {
-  "name": "root-project",
+  "name": "devtalks",
   "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "Frontend",
+    "Backend"
+  ],
   "scripts": {
-    "frontend:dev": "npm run dev:dev --prefix frontend",
-    "frontend:prod": "npm run dev:prod --prefix frontend",
-    "backend": "npm run start:dev --prefix backend",
-    "start:dev": "concurrently \"npm run frontend:dev\" \"npm run backend\"",
-    "start:prod": "concurrently \"npm run frontend:prod\" \"npm run backend\""
+    "install:all": "yarn install && yarn workspaces run install",
+    "install:frontend": "yarn workspace Frontend install",
+    "install:backend": "yarn workspace Backend install",
+    "dev:frontend": "yarn workspace Frontend dev:dev",
+    "dev:backend": "yarn workspace Backend start:dev",
+    "dev": "concurrently \"yarn dev:frontend\" \"yarn dev:backend\"",
+    "build:frontend": "yarn workspace Frontend build",
+    "build:backend": "yarn workspace Backend build",
+    "build": "yarn build:frontend && yarn build:backend"
   },
-  "dependencies": {
-    "@ckeditor/ckeditor5-core": "^44.3.0",
-    "@ckeditor/ckeditor5-ui": "^44.3.0",
-    "@types/ckeditor__ckeditor5-core": "^33.0.3",
-    "concurrently": "^9.1.2"
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

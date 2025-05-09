@@ -7,8 +7,10 @@ import TextAlign from "@tiptap/extension-text-align"
 import Image from "@tiptap/extension-image"
 import { Paragraph } from '@tiptap/extension-paragraph';
 import Placeholder from '@tiptap/extension-placeholder';
+import { SlashConfig } from "@/lib/editor/config/slashConfig";
 
-import { SlashConfig } from "./config/slashConfig";
+import BulletList from '@tiptap/extension-bullet-list'
+import OrderedList from '@tiptap/extension-ordered-list'
 const slashExtension = new SlashConfig();
 
 export const availableExtensions: any = [
@@ -16,10 +18,14 @@ export const availableExtensions: any = [
     extension: StarterKit,
     config: {
       heading: false,
+      bulletList: false,
+      orderedList:false,
     },
-  }, {
+  }, 
+  {
     extension: Paragraph,
-  }, {
+  }, 
+  {
     extension: Placeholder,
     config: {
       placeholder: `Type '/' for commands`,
@@ -36,9 +42,28 @@ export const availableExtensions: any = [
     },
   },
   {
+    extension: BulletList,
+    config:{
+      HTMLAttributes: {
+        'data-editor-bullet-list': 'bullet-list',
+      }
+    }
+  },
+  {
+    extension: OrderedList,
+    config:{
+      HTMLAttributes: {
+        'data-editor-ordered-list': 'ordered-list',
+      }
+    }
+  },
+  {
     extension: Link,
     config: {
-      openOnClick: false,
+      openOnClick: true, 
+      HTMLAttributes: {
+        'data-editor-link': 'link',
+      },
     },
   },
   {

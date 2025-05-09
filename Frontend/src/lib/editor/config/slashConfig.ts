@@ -2,9 +2,10 @@
 
 import { Editor, Extension, ReactRenderer } from "@tiptap/react";
 import Suggestion from "@tiptap/suggestion";
-import { slashTools } from "../tools/s-tool";
+
 import { CommandsList } from "@/Components/editor/slash-command";
 import tippy from "tippy.js"
+import { slashTools } from "@/utils/editor/tools/s-tool";
 interface SuggestionOptions {
     char: string;
     command: (props: { editor: any; range: any; props: any }) => void;

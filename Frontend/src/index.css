@@ -57,6 +57,36 @@ p,span, body {
 
 /* editor css */
 
+/* Code block styling */
+pre {
+  background-color: rgb(248, 249, 250);
+  border: 1px solid rgb(233, 236, 239);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgb(55, 58, 64);
+  border-left: 2px solid blue;
+}
+
+code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.875rem;
+  background-color: rgba(233, 236, 239, 0.5);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  color: var(--foreground);
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+  color: rgb(55, 58, 64);
+}
+
 .editor-image {
   display: block;
   max-width: 100%;
@@ -103,6 +133,19 @@ h3[data-editor-heading= 'heading']{
   font-size:1.17em;
   font-weight: 700;
   margin-bottom: 0.5em;
+}
+
+a[data-editor-link= 'link']{
+  cursor: pointer;
+  text-decoration: underline;
+}
+ul[data-editor-bullet-list= 'bullet-list']{
+  list-style-type: disc;
+  padding-inline: 2rem;
+}
+ol[data-editor-ordered-list= 'ordered-list']{
+  list-style-type: decimal;
+  padding-inline: 2rem;
 }
 @layer base {
   :root {

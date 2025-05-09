@@ -6,25 +6,20 @@ const iconSize = `${iconWidth} ${iconHeight}`;
 import { Popover, PopoverTrigger, PopoverContent } from "@/Components/ui/popover";
 import { Toggle } from "@/Components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/Components/ui/tooltip";
-
-import { memo } from "react";
+import { memo, forwardRef } from "react";
 import { capitalized } from "../../utils/capitalized";
 import getIcon from "../../utils/iconConverter";
 
-
-export const BubbleTools = memo(({ editor, tool }: any) => {
-
+export const BubbleTools = memo(forwardRef<HTMLButtonElement, any>(({ editor, tool }, ref) => {
     return tool.isWrapper ? (
-
-        <Tooltip >
+        <Tooltip>
             <Popover>
                 <PopoverTrigger asChild>
                     <TooltipTrigger asChild>
-                        <Toggle size={tool.size} pressed={editor.isActive(tool.name)} aria-label={tool.label}>
+                        <Toggle ref={ref} size={tool.size} pressed={editor.isActive(tool.name)} aria-label={tool.label}>
                             {getIcon(tool.icon,iconSize)}
                         </Toggle>
                     </TooltipTrigger>
-
                 </PopoverTrigger>
 
                 <TooltipContent>
@@ -38,9 +33,10 @@ export const BubbleTools = memo(({ editor, tool }: any) => {
             </Popover>
         </Tooltip>
     ) : (
-        <Tooltip >
+        <Tooltip>
             <TooltipTrigger asChild>
                 <Toggle
+                    ref={ref}
                     size={tool.size}
                     pressed={editor.isActive(tool.name)}
                     onPressedChange={tool.action}
@@ -55,4 +51,4 @@ export const BubbleTools = memo(({ editor, tool }: any) => {
             </TooltipContent>
         </Tooltip>
     )
-})
+}));

@@ -4,15 +4,14 @@ import { Search, Bell, Edit, ChevronDown, X } from 'lucide-react'
 import { Link } from "react-router-dom"
 import Logo from "../Logo"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import BounceLoader from "../BounchLoader"
 import Alert from "@/widgets/Icons/Alert"
 import socket from '@/socket/socketServer'
 import useTokenStore from "@/store/TokenStore"
 import { useFetchQuery } from "@/hooks/useFetchQuery"
-import Notification, { INotification, NotificationGroup } from "./Notification"
-import { IUser } from "@/Interfaces/EntityInterface"
+    import Notification, { INotification, NotificationGroup } from "./Notification"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
+import { useUserInfo } from "@/hooks/useUserInfo"
 
 interface INotificationResponse {
   data: INotification[];
@@ -33,11 +32,11 @@ export default function Navbar() {
 
   // ===== Data Fetching =====
   // Fetch user information
-  const { data: userInfo, isLoading } = useQuery<{ data: IUser }>({
-    queryKey: ['user'],
-    enabled: false,
-  });
-
+  // const { data: userInfo, isLoading } = useQuery<{ data: IUser }>({
+  //   queryKey: ['user'],
+  //   enabled: false,
+  // });
+  const userInfo = useUserInfo();
   // Fetch notifications
   const fetchNotifications = async () => {
     if (token) {
@@ -154,7 +153,7 @@ export default function Navbar() {
     { label: "Sign out", href: "/signout", action: true },
   ]
 
-  if (isLoading) return <BounceLoader />
+  // if (isLoading) return <BounceLoader />
   if(userInfo){
   // ===== Render Component =====
   return (
