@@ -1,0 +1,23 @@
+{
+  "name": "devtalks",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "Frontend",
+    "Backend"
+  ],
+  "scripts": {
+    "install:all": "yarn install && yarn workspaces run install",
+    "install:frontend": "yarn workspace Frontend install",
+    "install:backend": "yarn workspace Backend install",
+    "dev:frontend": "yarn workspace Frontend dev:dev",
+    "dev:backend": "yarn workspace Backend start:dev",
+    "dev": "concurrently \"yarn dev:frontend\" \"yarn dev:backend\"",
+    "build:frontend": "yarn workspace Frontend build",
+    "build:backend": "yarn workspace Backend build",
+    "build": "yarn build:frontend && yarn build:backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

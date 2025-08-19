@@ -1,0 +1,8 @@
+
+-- tags Table
+CREATE TABLE `tags` (
+  `id` CHAR(36) NOT NULL,
+  `name` VARCHAR(50) NOT NULL UNIQUE,
+  `created_at` TIMESTAMP(0) DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);

@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                                             String          @id @db.Char(36)
+  name                                           String          @db.VarChar(100)
+  email                                          String          @unique(map: "email") @db.VarChar(255)
+  password                                       String          @db.VarChar(2083)
+  short_bio                                      String?         @db.VarChar(160)
+  avatar                                         String?         @db.Text
+  about                                          String?         @db.VarChar(250)
+  domain                                         String          @unique(map: "domain") @db.VarChar(255)
+  isActive                                       Boolean?        @default(false)
+  isBlacklisted                                  Boolean?        @default(false)
+  isPremium                                      Boolean?        @default(false)
+  created_at                                     DateTime?       @default(now()) @db.Timestamp(0)
+  articles                                       articles[]
+  comment_likes                                  comment_likes[]
+  comments                                       comments[]
+  follows_follows_follower_idToUser              follows[]       @relation("follows_follower_idToUser")
+  follows_follows_following_idToUser             follows[]       @relation("follows_following_idToUser")
+  likes                                          likes[]
+  notifications_notifications_recipient_idToUser notifications[] @relation("notifications_recipient_idToUser")
+  notifications_notifications_sender_idToUser    notifications[] @relation("notifications_sender_idToUser")
+}
+
+model article_tags {
+  article_id String    @db.Char(36)
+  tag_id     String    @db.Char(36)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  articles   articles  @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_tags_ibfk_1")
+  tags       tags      @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_tags_ibfk_2")
+
+  @@id([article_id, tag_id])
+  @@index([tag_id], map: "tag_id")
+}
+
+model articles {
+  id                    String         @id @db.Char(36)
+  author_id             String         @db.Char(36)
+  title                 String         @db.VarChar(255)
+  slug                  String         @unique(map: "slug") @db.VarChar(355)
+  content               String         @db.Text
+  thumbnail             String?        @db.Text
+  views                 Int?           @default(0)
+  is_published          Boolean?       @default(false)
+  created_at            DateTime?      @default(now()) @db.Timestamp(0)
+  updated_at            DateTime?      @default(now()) @db.Timestamp(0)
+  publishedAt           DateTime?      @db.Timestamp(0)
+  short_preview         String?        @db.VarChar(250)
+  estimate_reading_time Int?           @default(0)
+  article_tags          article_tags[]
+  User                  User           @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "articles_ibfk_1")
+  comments              comments[]
+  likes                 likes[]
+
+  @@index([author_id], map: "author_id")
+}
+
+model comments {
+  id             String          @id @db.Char(36)
+  article_id     String          @db.Char(36)
+  author_id      String          @db.Char(36)
+  content        String          @db.Text
+  created_at     DateTime?       @default(now()) @db.Timestamp(0)
+  parent_id      String?         @db.Char(36)
+  comment_likes  comment_likes[]
+  articles       articles        @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_1")
+  User           User            @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comments_ibfk_2")
+  comments       comments?       @relation("commentsTocomments", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_comments_parent_id")
+  other_comments comments[]      @relation("commentsTocomments")
+
+  @@index([article_id], map: "article_id")
+  @@index([author_id], map: "author_id")
+  @@index([parent_id], map: "parent_id")
+}
+
+model likes {
+  id         String    @id @db.Char(36)
+  article_id String    @db.Char(36)
+  user_id    String    @db.Char(36)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  articles   articles  @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "likes_ibfk_1")
+  User       User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "likes_ibfk_2")
+
+  @@index([article_id], map: "article_id")
+  @@index([user_id], map: "user_id")
+}
+
+model tags {
+  id           String         @id @db.Char(36)
+  name         String         @unique(map: "name") @db.VarChar(50)
+  created_at   DateTime?      @default(now()) @db.Timestamp(0)
+  article_tags article_tags[]
+}
+
+model notifications {
+  id                                    String             @id @db.Char(36)
+  recipient_id                          String             @db.Char(36)
+  sender_id                             String             @db.Char(36)
+  type                                  notifications_type
+  title                                 String?            @db.VarChar(255)
+  content                               String?            @db.Text
+  url_to                                String?            @db.VarChar(255)
+  is_read                               Boolean?           @default(false)
+  highlight                             Boolean?           @default(true)
+  created_at                            DateTime?          @default(now()) @db.Timestamp(0)
+  User_notifications_recipient_idToUser User               @relation("notifications_recipient_idToUser", fields: [recipient_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "notifications_ibfk_1")
+  User_notifications_sender_idToUser    User               @relation("notifications_sender_idToUser", fields: [sender_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "notifications_ibfk_2")
+
+  @@index([recipient_id], map: "recipient_id")
+  @@index([sender_id], map: "sender_id")
+}
+
+model follows {
+  follower_id                     String    @db.Char(36)
+  following_id                    String    @db.Char(36)
+  created_at                      DateTime? @default(now()) @db.Timestamp(0)
+  User_follows_follower_idToUser  User      @relation("follows_follower_idToUser", fields: [follower_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "follows_ibfk_1")
+  User_follows_following_idToUser User      @relation("follows_following_idToUser", fields: [following_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "follows_ibfk_2")
+
+  @@id([follower_id, following_id])
+  @@index([following_id], map: "following_id")
+}
+
+model comment_likes {
+  id         String    @id @db.Char(36)
+  comment_id String    @db.Char(36)
+  user_id    String    @db.Char(36)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  comments   comments  @relation(fields: [comment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_likes_ibfk_1")
+  User       User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_likes_ibfk_2")
+
+  @@index([comment_id], map: "idx_comment_id")
+  @@index([user_id], map: "idx_user_id")
+}
+
+enum notifications_type {
+  follow
+  comment
+  like
+  article
+  other
+}
